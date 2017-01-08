@@ -1,0 +1,21 @@
+{
+    "author": "sferris37@gmail.com",
+    "dependencies": {},
+    "keywords": [],
+    "name": "timer",
+    "pebble": {
+        "displayName": "Timer",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "uuid": "51bc9efb-8881-449e-bec6-6a7e59a69c80",
+        "watchapp": {
+            "watchface": false
+        }
+    },
+    "version": "1.0.0"
+}
