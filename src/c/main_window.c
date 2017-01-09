@@ -4,7 +4,7 @@
 #include "Utility.h"
 #include "timer_group_window.h"
 #include "settings_window.h"
-#include "globals.h"
+#include "dimensions.h"
 
 #include <pebble.h>
 
@@ -13,6 +13,7 @@
 
 static Window* main_window_s;
 static MenuLayer* menu_layer_s;
+static StatusBarLayer* status_bar_s;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -27,6 +28,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data);
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
+// Helpers
 static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text);
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text);
@@ -36,6 +38,7 @@ void main_window_push(struct App_data* app_data) {
   
   if (!main_window_s) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
+    return;
   }
   
   window_set_user_data(main_window_s, app_data);
@@ -73,6 +76,11 @@ static void window_load_handler(Window* window) {
   menu_layer_set_click_config_onto_window(menu_layer_s, window);
   
   layer_add_child(window_layer, menu_layer_get_layer(menu_layer_s));
+  
+  // Create the StatusBarLayer
+//   status_bar_s = status_bar_layer_create();
+//   status_bar_layer_set_separator_mode(status_bar_s, StatusBarLayerSeparatorModeDotted);
+//   layer_add_child(window_layer, status_bar_layer_get_layer(status_bar_s));
 }
 
 static void window_unload_handler(Window* window) {
@@ -215,7 +223,6 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         // New timer group
         struct List* timer_groups = app_data_get_timer_groups(app_data);
         list_add(timer_groups, list_create());
-        struct List* timer_group = list_get(timer_groups, list_size(timer_groups) - 1);
         timer_group_window_push(app_data, list_size(timer_groups) - 1);
       } else if (cell_index->row == 1) {
         // Settings

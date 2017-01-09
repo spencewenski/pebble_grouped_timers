@@ -62,3 +62,39 @@ void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
   timer_set_minutes(timer, minutes);
   timer_set_seconds(timer, seconds);
 }
+
+void timer_increment_hours(struct Timer* timer, int amount) {
+  timer_set_hours(timer, timer->hours + amount);
+}
+
+void timer_increment_minutes(struct Timer* timer, int amount) {
+    timer_set_minutes(timer, timer->minutes + amount);
+}
+
+void timer_increment_seconds(struct Timer* timer, int amount) {
+    timer_set_seconds(timer, timer->seconds + amount);
+}
+
+int timer_get_hours(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
+    return -1;
+  }
+  return timer->hours;
+}
+
+int timer_get_minutes(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
+    return -1;
+  }
+  return timer->minutes;
+}
+
+int timer_get_seconds(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
+    return -1;
+  }
+  return timer->seconds;
+}

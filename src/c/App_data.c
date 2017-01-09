@@ -2,6 +2,7 @@
 #include "Utility.h"
 #include "List.h"
 #include "Settings.h"
+#include "Timer.h"
 
 #include <pebble.h>
 
@@ -21,6 +22,10 @@ void app_data_destroy(struct App_data* app_data) {
 	if (!app_data) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "null app_data pointer");
     return;
+  }
+  for (int i = 0; i < list_size(app_data->timer_groups); ++i) {
+    struct List* timer_group = list_get(app_data->timer_groups, i);
+    list_apply(timer_group, (List_apply_fp_t)timer_destroy);
   }
   list_apply(app_data->timer_groups, (List_apply_fp_t)list_destroy);
   list_destroy(app_data->timer_groups);

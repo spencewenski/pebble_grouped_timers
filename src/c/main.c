@@ -30,7 +30,7 @@ static void init_fake_data(struct App_data* app_data) {
   struct List* timer_group = list_get(timer_groups, 0);
   
   struct Timer* timer = timer_create();
-  timer_set_all(timer, 0, 0, 10);
+  timer_set_all(timer, 1, 0, 10);
   list_add(timer_group, timer);
   
   timer = timer_create();
