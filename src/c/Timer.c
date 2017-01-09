@@ -13,15 +13,15 @@ struct Timer {
   int seconds;
 };
 
-struct Timer* create_timer() {
+struct Timer* timer_create() {
   return safe_alloc(sizeof(struct Timer));
 }
 
-void destroy_timer(struct Timer* timer) {
+void timer_destroy(struct Timer* timer) {
   free(timer);
 }
 
-void set_hours(struct Timer* timer, int hours) {
+void timer_set_hours(struct Timer* timer, int hours) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "set_hours: NULL Timer");
     return;
@@ -33,7 +33,7 @@ void set_hours(struct Timer* timer, int hours) {
   timer->hours = hours;
 }
 
-void set_minutes(struct Timer* timer, int minutes) {
+void timer_set_minutes(struct Timer* timer, int minutes) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "set_minutes: NULL Timer");
     return;
@@ -45,7 +45,7 @@ void set_minutes(struct Timer* timer, int minutes) {
   timer->minutes = minutes;
 }
 
-void set_seconds(struct Timer* timer, int seconds) {
+void timer_set_seconds(struct Timer* timer, int seconds) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
     return;
@@ -57,8 +57,8 @@ void set_seconds(struct Timer* timer, int seconds) {
   timer->seconds = seconds;
 }
 
-void set_all(struct Timer* timer, int hours, int minutes, int seconds) {
-  set_hours(timer, hours);
-  set_minutes(timer, minutes);
-  set_seconds(timer, seconds);
+void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
+  timer_set_hours(timer, hours);
+  timer_set_minutes(timer, minutes);
+  timer_set_seconds(timer, seconds);
 }

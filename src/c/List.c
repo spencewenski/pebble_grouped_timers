@@ -97,7 +97,7 @@ void* list_get(struct List* list, int index) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "invalid index");
     return NULL;
   }
-  return *((void**) (list->array[index]));
+  return list->array[index];
 }
 
 void list_remove(struct List* list, int index) {

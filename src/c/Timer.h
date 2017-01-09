@@ -2,9 +2,9 @@
 
 struct Timer;
 
-struct Timer* create_timer();
-void destroy_timer(struct Timer* timer);
-void set_hours(struct Timer* timer, int hours);
-void set_minutes(struct Timer* timer, int minutes);
-void set_seconds(struct Timer* timer, int seconds);
-void set_all(struct Timer* timer, int hours, int minutes, int seconds);
+struct Timer* timer_create();
+void timer_destroy(struct Timer* timer);
+void timer_set_hours(struct Timer* timer, int hours);
+void timer_set_minutes(struct Timer* timer, int minutes);
+void timer_set_seconds(struct Timer* timer, int seconds);
+void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds);
