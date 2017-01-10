@@ -55,7 +55,6 @@ static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
-  s_menu_layer = menu_layer_create(bounds);
   if (!s_menu_layer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
   }

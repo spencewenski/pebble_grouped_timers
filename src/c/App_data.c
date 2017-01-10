@@ -37,6 +37,7 @@ void app_data_destroy(struct App_data* app_data) {
   app_data->timer_groups = NULL;
   settings_destroy(app_data->settings);
   app_data->settings = NULL;
+  free(app_data);
 }
 
 struct List* app_data_get_timer_groups(struct App_data* app_data) {
