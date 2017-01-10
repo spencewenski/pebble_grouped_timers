@@ -1,19 +1,18 @@
 #include "timer_group_window.h"
 #include "App_data.h"
-#include "dimensions.h"
 #include "List.h"
 #include "Utility.h"
 #include "Timer.h"
+#include "globals.h"
+#include "timer_edit_window.h"
 
 #include <pebble.h>
 
 #define MENU_NUM_SECTIONS 2
 #define SETTINGS_NUM_ROWS 1
-#define INVALID_INDEX -1
 
-static Window* timer_group_window_s;
-static MenuLayer* menu_layer_s;
-static int current_timer_group_index_s = INVALID_INDEX;
+static Window* s_timer_group_window;
+static MenuLayer* s_menu_layer;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -33,38 +32,36 @@ static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const 
 static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text);
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 
-void timer_group_window_push(struct App_data* app_data, int timer_group_index) {
-  timer_group_window_s = window_create();
+void timer_group_window_push(struct App_data* app_data) {
+  s_timer_group_window = window_create();
   
-  if (!timer_group_window_s) {
+  if (!s_timer_group_window) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer group window");
     return;
   }
+    
+  window_set_user_data(s_timer_group_window, app_data);
   
-  current_timer_group_index_s = timer_group_index;
-  
-  window_set_user_data(timer_group_window_s, app_data);
-  
-  window_set_window_handlers(timer_group_window_s, (WindowHandlers) {
+  window_set_window_handlers(s_timer_group_window, (WindowHandlers) {
     .load = window_load_handler,
     .unload = window_unload_handler
   });
   
-  window_stack_push(timer_group_window_s, false);
+  window_stack_push(s_timer_group_window, false);
 }
 
 // WindowHandlers
 static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-  menu_layer_s = menu_layer_create(bounds);
-  menu_layer_s = menu_layer_create(bounds);
-  if (!menu_layer_s) {
+  s_menu_layer = menu_layer_create(bounds);
+  s_menu_layer = menu_layer_create(bounds);
+  if (!s_menu_layer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
   }
   struct App_data* app_data = window_get_user_data(window);
   
-  menu_layer_set_callbacks(menu_layer_s, app_data, (MenuLayerCallbacks) {
+  menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = menu_get_cell_height_callback,
@@ -74,16 +71,20 @@ static void window_load_handler(Window* window) {
     .select_click = menu_select_click_callback
   });
   
-  menu_layer_set_click_config_onto_window(menu_layer_s, window);
+  menu_layer_set_click_config_onto_window(s_menu_layer, window);
   
-  layer_add_child(window_layer, menu_layer_get_layer(menu_layer_s));
+  layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
 
 static void window_unload_handler(Window* window) {
-  menu_layer_destroy(menu_layer_s);
-  window_destroy(timer_group_window_s);
-  timer_group_window_s = NULL;
-  current_timer_group_index_s = INVALID_INDEX;
+  struct App_data* app_data = window_get_user_data(window);
+  app_data_set_current_timer_group_index(app_data, INVALID_INDEX);
+  
+  menu_layer_destroy(s_menu_layer);
+  s_menu_layer = NULL;
+  
+  window_destroy(s_timer_group_window);  
+  s_timer_group_window = NULL;
 }
 
 static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data) {
@@ -95,7 +96,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   switch (section_index) {
     case 0:
       // Timers
-      return list_size(list_get(app_data_get_timer_groups(app_data), current_timer_group_index_s));
+      return list_size(app_data_get_current_timer_group(app_data));
     case 1:
       // Settings
       return SETTINGS_NUM_ROWS;
@@ -131,7 +132,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data) {
   struct App_data* app_data = data;
-  struct List* timer_group = list_get(app_data_get_timer_groups(app_data), current_timer_group_index_s);
+  struct List* timer_group = app_data_get_current_timer_group(app_data);
   if (!timer_group) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer_group pointer");
     return;
@@ -197,25 +198,25 @@ static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const 
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
   struct App_data* app_data = data;
-  struct List* timer_groups = app_data_get_timer_groups(app_data);
-  struct Timer* new_timer = timer_create();
-  timer_set_all(new_timer, 0, 0, 25);
   
   switch (cell_index->section) {
     case 0:
       // Edit/create timer
+      app_data_set_current_timer_index(app_data, cell_index->row);
+      timer_edit_window_push(app_data);
       break;
     case 1:
       // Edit/create timer
-//       timer_create_window_push(app_data, current_timer_group_index_s);
-      list_add(list_get(timer_groups, current_timer_group_index_s), new_timer);
-      // Refresh window
-      layer_mark_dirty(menu_layer_get_layer(menu_layer_s));
-      menu_layer_reload_data(menu_layer_s);
-      return;
+      list_add(app_data_get_current_timer_group(app_data), timer_create());
+      app_data_set_current_timer_index(app_data, list_size(app_data_get_current_timer_group(app_data)) - 1);
+      timer_edit_window_push(app_data);
+      break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
       return;
   }
+  // Refresh window
+  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
+  menu_layer_reload_data(s_menu_layer);
 }
 

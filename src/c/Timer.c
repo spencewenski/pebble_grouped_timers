@@ -3,6 +3,7 @@
 
 #include <pebble.h>
 
+#define DEFAULT_VALUE 0
 #define MAX_HOURS 60
 #define MAX_MINUTES 60
 #define MAX_SECONDS 60
@@ -14,7 +15,11 @@ struct Timer {
 };
 
 struct Timer* timer_create() {
-  return safe_alloc(sizeof(struct Timer));
+  struct Timer* timer = safe_alloc(sizeof(struct Timer));
+  timer->hours = DEFAULT_VALUE;
+  timer->minutes = DEFAULT_VALUE;
+  timer->seconds = DEFAULT_VALUE;
+  return timer;
 }
 
 void timer_destroy(struct Timer* timer) {

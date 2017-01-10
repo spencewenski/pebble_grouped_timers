@@ -14,8 +14,7 @@ int main() {
   struct App_data* app_data = app_data_create();
   init(app_data);
   app_event_loop();
-  deinit();
-  app_data_destroy(app_data);
+  deinit(app_data);
 }
 
 static void init(struct App_data* app_data) {
@@ -46,6 +45,6 @@ static void init_fake_data(struct App_data* app_data) {
   list_add(timer_group, timer);
 }
 
-static void deinit() {
-//   main_window_deinit();
+static void deinit(struct App_data* app_data) {
+  app_data_destroy(app_data);
 }

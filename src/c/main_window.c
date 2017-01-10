@@ -4,16 +4,15 @@
 #include "Utility.h"
 #include "timer_group_window.h"
 #include "settings_window.h"
-#include "dimensions.h"
+#include "globals.h"
 
 #include <pebble.h>
 
 #define MAIN_MENU_NUM_SECTIONS 2
 #define SETTINGS_NUM_ROWS 2
 
-static Window* main_window_s;
-static MenuLayer* menu_layer_s;
-static StatusBarLayer* status_bar_s;
+static Window* s_main_window;
+static MenuLayer* s_menu_layer;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -34,21 +33,21 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
 static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text);
 
 void main_window_push(struct App_data* app_data) {
-  main_window_s = window_create();
+  s_main_window = window_create();
   
-  if (!main_window_s) {
+  if (!s_main_window) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
     return;
   }
   
-  window_set_user_data(main_window_s, app_data);
+  window_set_user_data(s_main_window, app_data);
   
-  window_set_window_handlers(main_window_s, (WindowHandlers) {
+  window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load_handler,
     .unload = window_unload_handler
   });
   
-  window_stack_push(main_window_s, false);
+  window_stack_push(s_main_window, false);
 }
 
 /*
@@ -57,13 +56,13 @@ WindowHandlers
 static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
-  menu_layer_s = menu_layer_create(bounds);
-  if (!menu_layer_s) {
+  s_menu_layer = menu_layer_create(bounds);
+  if (!s_menu_layer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
   }
   struct App_data* app_data = window_get_user_data(window);
   
-  menu_layer_set_callbacks(menu_layer_s, app_data, (MenuLayerCallbacks) {
+  menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = menu_get_cell_height_callback,
@@ -73,20 +72,20 @@ static void window_load_handler(Window* window) {
     .select_click = menu_select_click_callback
   });
   
-  menu_layer_set_click_config_onto_window(menu_layer_s, window);
+  menu_layer_set_click_config_onto_window(s_menu_layer, window);
   
-  layer_add_child(window_layer, menu_layer_get_layer(menu_layer_s));
+  layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
   
-  // Create the StatusBarLayer
-//   status_bar_s = status_bar_layer_create();
-//   status_bar_layer_set_separator_mode(status_bar_s, StatusBarLayerSeparatorModeDotted);
-//   layer_add_child(window_layer, status_bar_layer_get_layer(status_bar_s));
+  app_data_set_current_timer_group_index(app_data, INVALID_INDEX);
+  app_data_set_current_timer_index(app_data, INVALID_INDEX);
 }
 
 static void window_unload_handler(Window* window) {
-  menu_layer_destroy(menu_layer_s);
-  window_destroy(main_window_s);
-  main_window_s = NULL;
+  menu_layer_destroy(s_menu_layer);
+  s_menu_layer = NULL;
+  
+  window_destroy(s_main_window);
+  s_main_window = NULL;
 }
 
 /*
@@ -215,25 +214,27 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid row index: %d", cell_index->row);
         return;
       }
-      timer_group_window_push(app_data, cell_index->row);
-      return;
+      app_data_set_current_timer_group_index(app_data, cell_index->row);
+      timer_group_window_push(app_data);
+      break;
     case 1:
       // Settings
       if (cell_index->row == 0) {
         // New timer group
         struct List* timer_groups = app_data_get_timer_groups(app_data);
         list_add(timer_groups, list_create());
-        timer_group_window_push(app_data, list_size(timer_groups) - 1);
+        app_data_set_current_timer_group_index(app_data, list_size(timer_groups) - 1);
+        timer_group_window_push(app_data);
       } else if (cell_index->row == 1) {
         // Settings
         settings_window_push(app_data);
       }
-      // Refresh window
-      layer_mark_dirty(menu_layer_get_layer(menu_layer_s));
-      menu_layer_reload_data(menu_layer_s);
-      return;
+      break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
       return;
   }
+  // Refresh window
+  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
+  menu_layer_reload_data(s_menu_layer);
 }
