@@ -1,3 +1,5 @@
+// Some code borrowed from https://github.com/YclepticStudios/pebble-timer-plus/blob/master/src/timer.c
+
 #include "Timer.h"
 #include "Utility.h"
 
