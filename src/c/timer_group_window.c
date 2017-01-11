@@ -142,15 +142,15 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
   }
   struct Timer* timer = list_get(timer_group, row_index);
   char menu_text[MENU_TEXT_LENGTH];
-  if (timer_get_hours(timer) > 0) {
+  if (timer_get_field(timer, TIMER_FIELD_HOURS) > 0) {
     snprintf(menu_text, sizeof(menu_text), "%d:%.2d:%.2d",
-             timer_get_hours(timer),
-             timer_get_minutes(timer),
-             timer_get_seconds(timer));
+             timer_get_field(timer, TIMER_FIELD_HOURS),
+             timer_get_field(timer, TIMER_FIELD_MINUTES),
+             timer_get_field(timer, TIMER_FIELD_SECONDS));
   } else {
     snprintf(menu_text, sizeof(menu_text), "%d:%.2d",
-             timer_get_minutes(timer),
-             timer_get_seconds(timer));
+             timer_get_field(timer, TIMER_FIELD_MINUTES),
+             timer_get_field(timer, TIMER_FIELD_SECONDS));
   }
   
   menu_cell_draw_text_row(ctx, cell_layer, menu_text);

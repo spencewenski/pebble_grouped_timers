@@ -4,21 +4,19 @@
 #include <pebble.h>
 
 #define DEFAULT_VALUE 0
-#define MAX_HOURS 60
-#define MAX_MINUTES 60
-#define MAX_SECONDS 60
+#define MS_IN_SECOND 1000
+#define MS_IN_MINUTE 60000
+#define MS_IN_HOUR 3600000
+#define SECONDS_IN_MINUTE 60
+#define MINUTES_IN_HOUR 60
 
 struct Timer {
-  int hours;
-  int minutes;
-  int seconds;
+  int64_t length_ms;
 };
 
 struct Timer* timer_create() {
   struct Timer* timer = safe_alloc(sizeof(struct Timer));
-  timer->hours = DEFAULT_VALUE;
-  timer->minutes = DEFAULT_VALUE;
-  timer->seconds = DEFAULT_VALUE;
+  timer->length_ms = DEFAULT_VALUE;
   return timer;
 }
 
@@ -26,80 +24,59 @@ void timer_destroy(struct Timer* timer) {
   free(timer);
 }
 
-void timer_set_hours(struct Timer* timer, int hours) {
+void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value) {
   if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_hours: NULL Timer");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
     return;
   }
-  if (!in_range(hours, 0, MAX_HOURS)) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_hours: %d not in range", hours);
-    return;
-  }
-  timer->hours = hours;
+  timer_increment_field(timer, timer_field, -timer_get_field(timer, timer_field));
+  timer_increment_field(timer, timer_field, value);
 }
 
-void timer_set_minutes(struct Timer* timer, int minutes) {
+int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
   if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_minutes: NULL Timer");
-    return;
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
   }
-  if (!in_range(minutes, 0, MAX_MINUTES)) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_minutes: %d not in range", minutes);
-    return;
+  switch (timer_field) {
+    case TIMER_FIELD_HOURS:
+      return timer->length_ms / MS_IN_HOUR;
+    case TIMER_FIELD_MINUTES:
+      return (timer->length_ms % MS_IN_HOUR) / MS_IN_MINUTE;
+    case TIMER_FIELD_SECONDS:
+      return (timer->length_ms % MS_IN_MINUTE) / MS_IN_SECOND;
+    case TIMER_FIELD_INVALID: // intentional fall through
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
+      return 0;
   }
-  timer->minutes = minutes;
 }
 
-void timer_set_seconds(struct Timer* timer, int seconds) {
+// todo: bounds checking
+void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount) {
   if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
     return;
   }
-  if (!in_range(seconds, 0, MAX_SECONDS)) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: %d not in range", seconds);
-    return;
+  switch (timer_field) {
+    case TIMER_FIELD_HOURS:
+      timer->length_ms += (amount * MS_IN_HOUR);
+      break;
+    case TIMER_FIELD_MINUTES:
+      timer->length_ms += (amount * MS_IN_MINUTE);
+      break;
+    case TIMER_FIELD_SECONDS:
+      timer->length_ms += (amount * MS_IN_SECOND);
+      break;
+    case TIMER_FIELD_INVALID: // intentional fall through
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
+      break;
   }
-  timer->seconds = seconds;
 }
 
 void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
-  timer_set_hours(timer, hours);
-  timer_set_minutes(timer, minutes);
-  timer_set_seconds(timer, seconds);
-}
-
-void timer_increment_hours(struct Timer* timer, int amount) {
-  timer_set_hours(timer, timer->hours + amount);
-}
-
-void timer_increment_minutes(struct Timer* timer, int amount) {
-    timer_set_minutes(timer, timer->minutes + amount);
-}
-
-void timer_increment_seconds(struct Timer* timer, int amount) {
-    timer_set_seconds(timer, timer->seconds + amount);
-}
-
-int timer_get_hours(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
-    return -1;
-  }
-  return timer->hours;
-}
-
-int timer_get_minutes(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
-    return -1;
-  }
-  return timer->minutes;
-}
-
-int timer_get_seconds(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "set_seconds: NULL Timer");
-    return -1;
-  }
-  return timer->seconds;
+  timer_set_field(timer, TIMER_FIELD_HOURS, hours);
+  timer_set_field(timer, TIMER_FIELD_MINUTES, minutes);
+  timer_set_field(timer, TIMER_FIELD_SECONDS, seconds);
 }
