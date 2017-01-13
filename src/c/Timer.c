@@ -1,5 +1,3 @@
-// Some code borrowed from https://github.com/YclepticStudios/pebble-timer-plus/blob/master/src/timer.c
-
 #include "Timer.h"
 #include "Utility.h"
 
@@ -45,13 +43,13 @@ void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, in
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
       timer->hours = wrap_value(value, 0, get_max_value(timer_field));
-      break;
+      return;
     case TIMER_FIELD_MINUTES:
       timer->minutes = wrap_value(value, 0, get_max_value(timer_field));
-      break;
+      return;
     case TIMER_FIELD_SECONDS:
       timer->seconds = wrap_value(value, 0, get_max_value(timer_field));
-      break;
+      return;
     case TIMER_FIELD_INVALID: // intentional fall through
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
@@ -110,18 +108,18 @@ void timer_increment_field(struct Timer* timer, const enum Timer_field timer_fie
   }
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
-      timer_set_field(timer, TIMER_FIELD_HOURS, timer->hours + amount);
-      break;
+      timer_set_field(timer, timer_field, timer->hours + amount);
+      return;
     case TIMER_FIELD_MINUTES:
-      timer_set_field(timer, TIMER_FIELD_MINUTES, timer->minutes + amount);
-      break;
+      timer_set_field(timer, timer_field, timer->minutes + amount);
+      return;
     case TIMER_FIELD_SECONDS:
-      timer_set_field(timer, TIMER_FIELD_SECONDS, timer->seconds + amount);
-      break;
+      timer_set_field(timer, timer_field, timer->seconds + amount);
+      return;
     case TIMER_FIELD_INVALID: // intentional fall through
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
-      break;
+      return;
   }
 }
 
