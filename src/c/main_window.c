@@ -5,6 +5,7 @@
 #include "timer_group_window.h"
 #include "settings_window.h"
 #include "globals.h"
+#include "draw_utility.h"
 
 #include <pebble.h>
 
@@ -28,9 +29,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
 // Helpers
-static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text);
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
-static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text);
 
 void main_window_push(struct App_data* app_data) {
   s_main_window = window_create();
@@ -165,19 +164,6 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
   menu_cell_draw_text_row(ctx, cell_layer, menu_text);
 }
 
-static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text) {
-  GRect bounds = layer_get_bounds(cell_layer);
-  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
-  
-  graphics_draw_text(ctx,
-                     text,
-                     font,
-                     bounds,
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
-}
-
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data) {
   switch (section_index) {
     case 0:
@@ -191,17 +177,6 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", section_index);
       return;
   }
-}
-
-static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text) {
-  GSize size = layer_get_frame(cell_layer).size;
-  graphics_draw_text(ctx,
-                     text,
-                     fonts_get_system_font(FONT_KEY_GOTHIC_14),
-                     GRect(0,0,size.w,size.h),
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
 }
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
