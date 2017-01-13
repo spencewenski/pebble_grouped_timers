@@ -4,6 +4,7 @@
 #include "Utility.h"
 
 #include <pebble.h>
+#include <stdlib.h>
 
 #define DEFAULT_VALUE 0
 #define MS_IN_SECOND 1000
@@ -11,14 +12,24 @@
 #define MS_IN_HOUR 3600000
 #define SECONDS_IN_MINUTE 60
 #define MINUTES_IN_HOUR 60
+#define MAX_HOURS 60
+#define MAX_MINUTES 60
+#define MAX_SECONDS 60
+
+static int get_max_value(enum Timer_field timer_field);
 
 struct Timer {
-  int64_t length_ms;
+  int hours;
+  int minutes;
+  int seconds;
+//   int start_time_ms;
 };
 
 struct Timer* timer_create() {
   struct Timer* timer = safe_alloc(sizeof(struct Timer));
-  timer->length_ms = DEFAULT_VALUE;
+  timer->hours = DEFAULT_VALUE;
+  timer->minutes = DEFAULT_VALUE;
+  timer->seconds = DEFAULT_VALUE;
   return timer;
 }
 
@@ -31,8 +42,36 @@ void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, in
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
     return;
   }
-  timer_increment_field(timer, timer_field, -timer_get_field(timer, timer_field));
-  timer_increment_field(timer, timer_field, value);
+  switch (timer_field) {
+    case TIMER_FIELD_HOURS:
+      timer->hours = wrap_value(value, 0, get_max_value(timer_field));
+      break;
+    case TIMER_FIELD_MINUTES:
+      timer->minutes = wrap_value(value, 0, get_max_value(timer_field));
+      break;
+    case TIMER_FIELD_SECONDS:
+      timer->seconds = wrap_value(value, 0, get_max_value(timer_field));
+      break;
+    case TIMER_FIELD_INVALID: // intentional fall through
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
+      return;
+  }
+}
+
+static int get_max_value(enum Timer_field timer_field) {
+  switch (timer_field) {
+    case TIMER_FIELD_HOURS:
+      return MAX_HOURS;
+    case TIMER_FIELD_MINUTES:
+      return MAX_MINUTES;
+    case TIMER_FIELD_SECONDS:
+      return MAX_SECONDS;
+    case TIMER_FIELD_INVALID: // intentional fall through
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
+      return 0;
+  }
 }
 
 int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
@@ -42,11 +81,11 @@ int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
   }
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
-      return timer->length_ms / MS_IN_HOUR;
+      return timer->hours;
     case TIMER_FIELD_MINUTES:
-      return (timer->length_ms % MS_IN_HOUR) / MS_IN_MINUTE;
+      return timer->minutes;
     case TIMER_FIELD_SECONDS:
-      return (timer->length_ms % MS_IN_MINUTE) / MS_IN_SECOND;
+      return timer->seconds;
     case TIMER_FIELD_INVALID: // intentional fall through
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
@@ -54,7 +93,16 @@ int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
   }
 }
 
-// todo: bounds checking
+int timer_get_length_ms(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  return (timer->hours * MS_IN_HOUR) +
+    (timer->minutes * MS_IN_MINUTE) +
+    (timer->seconds * MS_IN_SECOND);
+}
+
 void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
@@ -62,13 +110,13 @@ void timer_increment_field(struct Timer* timer, const enum Timer_field timer_fie
   }
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
-      timer->length_ms += (amount * MS_IN_HOUR);
+      timer_set_field(timer, TIMER_FIELD_HOURS, timer->hours + amount);
       break;
     case TIMER_FIELD_MINUTES:
-      timer->length_ms += (amount * MS_IN_MINUTE);
+      timer_set_field(timer, TIMER_FIELD_MINUTES, timer->minutes + amount);
       break;
     case TIMER_FIELD_SECONDS:
-      timer->length_ms += (amount * MS_IN_SECOND);
+      timer_set_field(timer, TIMER_FIELD_SECONDS, timer->seconds + amount);
       break;
     case TIMER_FIELD_INVALID: // intentional fall through
     default:

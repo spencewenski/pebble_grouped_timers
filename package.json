@@ -2,9 +2,9 @@
     "author": "sferris37@gmail.com",
     "dependencies": {},
     "keywords": [],
-    "name": "timer",
+    "name": "timers",
     "pebble": {
-        "displayName": "Timer",
+        "displayName": "Grouped timers",
         "enableMultiJS": true,
         "messageKeys": [],
         "projectType": "native",

@@ -174,7 +174,7 @@ static void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, cons
                      font,
                      bounds,
                      GTextOverflowModeTrailingEllipsis,
-                     GTextAlignmentLeft,
+                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
                      NULL);
 }
 
@@ -200,7 +200,7 @@ static void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const 
                      fonts_get_system_font(FONT_KEY_GOTHIC_14),
                      GRect(0,0,size.w,size.h),
                      GTextOverflowModeTrailingEllipsis,
-                     GTextAlignmentLeft,
+                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
                      NULL);
 }
 

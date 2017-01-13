@@ -16,3 +16,10 @@ int in_range(int value, int min, int max) {
   }
   return 1;
 }
+
+int wrap_value(int value, int min, int max) {
+  if (value < min) {
+    value += max;
+  }
+  return value % max;
+}
