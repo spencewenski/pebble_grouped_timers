@@ -14,6 +14,7 @@
 
 static Window* s_timer_group_window;
 static MenuLayer* s_menu_layer;
+static int s_timer_group_index;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -31,13 +32,15 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 // Helpers
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 
-void timer_group_window_push(struct App_data* app_data) {
+void timer_group_window_push(struct App_data* app_data, int timer_group) {
   s_timer_group_window = window_create();
   
   if (!s_timer_group_window) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer group window");
     return;
   }
+  
+  s_timer_group_index = timer_group;
     
   window_set_user_data(s_timer_group_window, app_data);
   
@@ -75,9 +78,6 @@ static void window_load_handler(Window* window) {
 }
 
 static void window_unload_handler(Window* window) {
-  struct App_data* app_data = window_get_user_data(window);
-  app_data_set_current_timer_group_index(app_data, INVALID_INDEX);
-  
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
   
@@ -94,7 +94,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   switch (section_index) {
     case 0:
       // Timers
-      return list_size(app_data_get_current_timer_group(app_data));
+      return list_size(app_data_get_timer_group(app_data, s_timer_group_index));
     case 1:
       // Settings
       return SETTINGS_NUM_ROWS;
@@ -130,7 +130,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data) {
   struct App_data* app_data = data;
-  struct List* timer_group = app_data_get_current_timer_group(app_data);
+  struct List* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
   if (!timer_group) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer_group pointer");
     return;
@@ -176,14 +176,12 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
   switch (cell_index->section) {
     case 0:
       // Edit/create timer
-      app_data_set_current_timer_index(app_data, cell_index->row);
-      timer_edit_window_push(app_data);
+      timer_edit_window_push(app_data, s_timer_group_index, cell_index->row);
       break;
     case 1:
       // Edit/create timer
-      list_add(app_data_get_current_timer_group(app_data), timer_create());
-      app_data_set_current_timer_index(app_data, list_size(app_data_get_current_timer_group(app_data)) - 1);
-      timer_edit_window_push(app_data);
+      list_add(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
+      timer_edit_window_push(app_data, s_timer_group_index, list_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);

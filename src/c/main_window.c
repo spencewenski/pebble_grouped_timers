@@ -74,9 +74,6 @@ static void window_load_handler(Window* window) {
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
   
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
-  
-  app_data_set_current_timer_group_index(app_data, INVALID_INDEX);
-  app_data_set_current_timer_index(app_data, INVALID_INDEX);
 }
 
 static void window_unload_handler(Window* window) {
@@ -189,8 +186,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid row index: %d", cell_index->row);
         return;
       }
-      app_data_set_current_timer_group_index(app_data, cell_index->row);
-      timer_group_window_push(app_data);
+      timer_group_window_push(app_data, cell_index->row);
       break;
     case 1:
       // Settings
@@ -198,8 +194,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         // New timer group
         struct List* timer_groups = app_data_get_timer_groups(app_data);
         list_add(timer_groups, list_create());
-        app_data_set_current_timer_group_index(app_data, list_size(timer_groups) - 1);
-        timer_group_window_push(app_data);
+        timer_group_window_push(app_data, list_size(timer_groups) - 1);
       } else if (cell_index->row == 1) {
         // Settings
         settings_window_push(app_data);

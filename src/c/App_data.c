@@ -10,16 +10,12 @@
 struct App_data {
   struct List* timer_groups; // List of Lists
   struct Settings* settings;
-  int current_timer_group_index;   // index of the group currently being edited/viewed
-  int current_timer_index;         // index of the timer currently being edited/viewed
 };
 
 struct App_data* app_data_create() {
 	struct App_data* app_data = safe_alloc(sizeof(struct App_data));
   app_data->timer_groups = list_create();
   app_data->settings = settings_create();
-  app_data->current_timer_group_index = INVALID_INDEX;
-  app_data->current_timer_index = INVALID_INDEX;
   return app_data;
 }
 
@@ -56,53 +52,31 @@ struct Settings* app_data_get_settings(struct App_data* app_data) {
   return app_data->settings;
 }
 
-void app_data_set_current_timer_group_index(struct App_data* app_data, int index) {
-  if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
-    return;
-  }
-  if (!in_range(index, 0, list_size(app_data->timer_groups))) {
-    return;
-  }
-  app_data->current_timer_group_index = index;
-}
-
-void app_data_set_current_timer_index(struct App_data* app_data, int index) {
-  if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
-    return;
-  }
-  if (!in_range(index, 0, list_size(app_data->timer_groups))) {
-    return;
-  }
-  app_data->current_timer_index = index;
-}
-
-struct List* app_data_get_current_timer_group(struct App_data* app_data) {
+struct List* app_data_get_timer_group(struct App_data* app_data, int timer_group_index) {
   if (!app_data) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
     return NULL;
   }
-  if (app_data->current_timer_group_index == INVALID_INDEX) {
+  if (timer_group_index == INVALID_INDEX) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
     return NULL;
   }
-  return list_get(app_data->timer_groups, app_data->current_timer_group_index);
+  return list_get(app_data->timer_groups, timer_group_index);
 }
 
-struct Timer* app_data_get_current_timer(struct App_data* app_data) {
+struct Timer* app_data_get_timer(struct App_data* app_data, int timer_group_index, int timer_index) { 
   if (!app_data) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
     return NULL;
   }
-  if (app_data->current_timer_group_index == INVALID_INDEX) {
+  if (timer_group_index == INVALID_INDEX) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
     return NULL;
   }
-  if (app_data->current_timer_index == INVALID_INDEX) {
+  if (timer_index == INVALID_INDEX) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer index");
     return NULL;
   }
-  struct List* timer_group = app_data_get_current_timer_group(app_data);
-  return list_get(timer_group, app_data->current_timer_index);
+  struct List* timer_group = app_data_get_timer_group(app_data, timer_group_index);
+  return list_get(timer_group, timer_index);
 }
