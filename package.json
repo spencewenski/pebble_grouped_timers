@@ -1,8 +1,8 @@
 {
-    "author": "sferris37@gmail.com",
+    "author": "spencewenski",
     "dependencies": {},
     "keywords": [],
-    "name": "timers",
+    "name": "grouped timers",
     "pebble": {
         "displayName": "Grouped timers",
         "enableMultiJS": true,
