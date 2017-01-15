@@ -1,18 +1,50 @@
 #pragma once
 
+#define NUM_SETTINGS_FIELDS 3
+
 struct Settings;
+
+enum Settings_field {
+  SETTINGS_FIELD_REPEAT_STYLE,
+  SETTINGS_FIELD_PROGRESS_STYLE,
+  SETTINGS_FIELD_VIBRATE_STYLE,
+  SETTINGS_FIELD_INVALID
+};
+
+enum Repeat_style {
+  REPEAT_STYLE_NONE,
+  REPEAT_STYLE_SINGLE,
+  REPEAT_STYLE_GROUP,
+  REPEAT_STYLE_INVALID
+};
+
+enum Progress_style {
+  PROGRESS_STYLE_NONE,
+  PROGRESS_STYLE_AUTO,
+  PROGRESS_STYLE_WAIT_FOR_USER,
+  PROGRESS_STYLE_INVALID
+};
+
+enum Vibrate_style {
+  VIBRATE_STYLE_NONE,
+  VIBRATE_STYLE_NUDGE,
+  VIBRATE_STYLE_CONTINUOUS,
+  VIBRATE_STYLE_INVALID
+};
 
 struct Settings* settings_create();
 void settings_destroy(struct Settings* settings);
 
-// void settings_persist_save(struct Settings settings);
-// void settings_persist_load(struct Settings settings);
+void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style);
+enum Repeat_style settings_get_repeat_style(struct Settings* settings);
 
-void settings_set_repeat_group(struct Settings* settings, int repeat_group);
-int settings_get_repeat_group(struct Settings* settings);
+void settings_set_progress_style(struct Settings* settings, enum Progress_style progress_style);
+enum Progress_style settings_get_progress_style(struct Settings* settings);
 
-void settings_set_auto_progress(struct Settings* settings, int auto_progress);
-int settings_get_auto_progress(struct Settings* settings);
+void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vibrate_style);
+enum Vibrate_style settings_get_vibrate_style(struct Settings* settings);
 
-void settings_set_wait_for_user(struct Settings* settings, int wait_for_user);
-int settings_get_wait_for_user(struct Settings* settings);
+const char * settings_get_settings_field_text(enum Settings_field settings_field);
+const char * settings_get_repeat_style_text(enum Repeat_style repeat_style);
+const char * settings_get_progress_style_text(enum Progress_style progress_style);
+const char * settings_get_vibrate_style_text(enum Vibrate_style vibrate_style);

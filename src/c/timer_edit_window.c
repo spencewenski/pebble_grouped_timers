@@ -7,7 +7,6 @@
 #include <pebble.h>
 
 #define CLICK_REPEAT_INTERVAL_MS 100
-#define TIMER_TEXT_HEIGHT 80
 
 static Window* s_timer_edit_window;
 static TextLayer* s_timer_text_layer;
@@ -34,7 +33,7 @@ static void update_timer_text_layer(struct Timer* timer);
 // Helpers
 static enum Timer_field get_timer_field(int timer_edit_index);
 
-void timer_edit_window_push(struct App_data* app_data, int timer_group, int timer) {
+void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
   s_timer_edit_window = window_create();
   
   if (!s_timer_edit_window) {
@@ -42,8 +41,8 @@ void timer_edit_window_push(struct App_data* app_data, int timer_group, int time
     return;
   }
   
-  s_timer_group_index = timer_group;
-  s_timer_index = timer;
+  s_timer_group_index = timer_group_index;
+  s_timer_index = timer_index;
   
   window_set_user_data(s_timer_edit_window, app_data);
   
