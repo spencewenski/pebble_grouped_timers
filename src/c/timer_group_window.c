@@ -18,6 +18,7 @@ static int s_timer_group_index;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
+static void window_appear_handler(Window* window);
 static void window_unload_handler(Window* window);
 
 // MenuLayerCallbacks
@@ -46,6 +47,7 @@ void timer_group_window_push(struct App_data* app_data, int timer_group) {
   
   window_set_window_handlers(s_timer_group_window, (WindowHandlers) {
     .load = window_load_handler,
+    .appear = window_appear_handler,
     .unload = window_unload_handler
   });
   
@@ -75,6 +77,10 @@ static void window_load_handler(Window* window) {
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
   
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
+}
+
+static void window_appear_handler(Window* window) {
+  menu_layer_reload_data(s_menu_layer);
 }
 
 static void window_unload_handler(Window* window) {
