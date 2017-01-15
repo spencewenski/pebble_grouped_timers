@@ -5,11 +5,6 @@
 #include <stdlib.h>
 
 #define DEFAULT_VALUE 0
-#define MS_IN_SECOND 1000
-#define MS_IN_MINUTE 60000
-#define MS_IN_HOUR 3600000
-#define SECONDS_IN_MINUTE 60
-#define MINUTES_IN_HOUR 60
 #define MAX_HOURS 60
 #define MAX_MINUTES 60
 #define MAX_SECONDS 60
@@ -20,7 +15,6 @@ struct Timer {
   int hours;
   int minutes;
   int seconds;
-//   int start_time_ms;
 };
 
 struct Timer* timer_create() {
@@ -91,14 +85,12 @@ int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
   }
 }
 
-int timer_get_length_ms(struct Timer* timer) {
+int timer_get_length_seconds(struct Timer* timer) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
     return 0;
   }
-  return (timer->hours * MS_IN_HOUR) +
-    (timer->minutes * MS_IN_MINUTE) +
-    (timer->seconds * MS_IN_SECOND);
+  return (timer->hours * SECONDS_PER_HOUR) + (timer->minutes * SECONDS_PER_MINUTE) + timer->seconds;
 }
 
 void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount) {
