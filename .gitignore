@@ -1,3 +1,7 @@
-# build files
+# Build files
 build/
 .lock-waf_darwin_build
+
+# Sublime workspace
+*.sublime-project
+*.sublime-workspace

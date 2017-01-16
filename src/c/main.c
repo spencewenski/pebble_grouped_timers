@@ -2,6 +2,7 @@
 #include "App_data.h"
 #include "main_window.h"
 #include "List.h"
+#include "Settings.h"
 
 #include <pebble.h>
 
@@ -29,11 +30,11 @@ static void init_fake_data(struct App_data* app_data) {
   struct List* timer_group = list_get(timer_groups, 0);
   
   struct Timer* timer = timer_create();
-  timer_set_all(timer, 1, 0, 10);
+  timer_set_all(timer, 0, 0, 5);
   list_add(timer_group, timer);
   
   timer = timer_create();
-  timer_set_all(timer, 0, 1, 30);
+  timer_set_all(timer, 0, 0, 10);
   list_add(timer_group, timer);
   
   // Timer 2
@@ -43,6 +44,11 @@ static void init_fake_data(struct App_data* app_data) {
   timer = timer_create();
   timer_set_all(timer, 0, 0, 15);
   list_add(timer_group, timer);
+
+  // Settings
+  struct Settings* settings = app_data_get_settings(app_data);
+  settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
+  settings_set_progress_style(settings, PROGRESS_STYLE_WAIT_FOR_USER);
 }
 
 static void deinit(struct App_data* app_data) {

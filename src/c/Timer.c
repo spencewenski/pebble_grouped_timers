@@ -15,6 +15,8 @@ struct Timer {
   int hours;
   int minutes;
   int seconds;
+  int start_time_seconds; // Time in seconds since the timer was last paused
+  int elapsed_seconds;    // How much of the timer has elapsed
 };
 
 struct Timer* timer_create() {
@@ -85,14 +87,6 @@ int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
   }
 }
 
-int timer_get_length_seconds(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
-  return (timer->hours * SECONDS_PER_HOUR) + (timer->minutes * SECONDS_PER_MINUTE) + timer->seconds;
-}
-
 void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount) {
   if (!timer) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
@@ -119,4 +113,111 @@ void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
   timer_set_field(timer, TIMER_FIELD_HOURS, hours);
   timer_set_field(timer, TIMER_FIELD_MINUTES, minutes);
   timer_set_field(timer, TIMER_FIELD_SECONDS, seconds);
+}
+
+int timer_get_length_seconds(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  return (timer->hours * SECONDS_PER_HOUR) + (timer->minutes * SECONDS_PER_MINUTE) + timer->seconds;
+}
+
+int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_field) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  if (!timer_is_running(timer)) {
+    return timer_get_field(timer, timer_field);
+  }
+  int remaining_seconds = timer_get_remaining_seconds(timer);
+  switch (timer_field) {
+    case TIMER_FIELD_HOURS:
+      return remaining_seconds / SECONDS_PER_HOUR;
+    case TIMER_FIELD_MINUTES:
+      return (remaining_seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE;
+    case TIMER_FIELD_SECONDS:
+      return (remaining_seconds % SECONDS_PER_MINUTE);
+    case TIMER_FIELD_INVALID: // intentional fall through
+    default:
+      APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid timer field: %d", timer_field);
+      return 0;
+  }
+}
+
+int timer_get_remaining_seconds(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  if (!timer_is_running(timer)) {
+    return timer_get_length_seconds(timer);
+  }
+  return timer_get_length_seconds(timer) - timer->elapsed_seconds;
+}
+
+void timer_update(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return;
+  }
+  if (!timer_is_running(timer)) {
+    // Timer not running; nothing to update
+    return ;
+  }
+  int current_time = time(NULL);
+  timer->elapsed_seconds += current_time - timer->start_time_seconds;
+  timer->start_time_seconds = current_time;
+}
+
+int timer_is_running(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  return timer->start_time_seconds > 0 ? 1 : 0;
+}
+
+int timer_is_elapsed(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return 0;
+  }
+  return timer->elapsed_seconds >= timer_get_length_seconds(timer) ? 1 : 0;
+}
+
+void timer_start(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return;
+  }
+  if (timer->start_time_seconds > 0) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer already started");
+    return;
+  }
+  timer->start_time_seconds = time(NULL);
+}
+
+void timer_pause(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return;
+  }
+  if (timer->start_time_seconds <= 0) {
+    APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer not started");
+    return;
+  }
+  timer->elapsed_seconds += time(NULL) - timer->start_time_seconds;
+  timer->start_time_seconds = 0;
+}
+
+// Reset timer back to its original value
+void timer_reset(struct Timer* timer) {
+  if (!timer) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
+    return;
+  }
+  timer->start_time_seconds = 0;
+  timer->elapsed_seconds = 0;
 }

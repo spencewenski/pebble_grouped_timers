@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "globals.h"
 #include "timer_edit_window.h"
+#include "timer_countdown_window.h"
 #include "draw_utility.h"
 
 #include <pebble.h>
@@ -182,7 +183,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
   switch (cell_index->section) {
     case 0:
       // Edit/create timer
-      timer_edit_window_push(app_data, s_timer_group_index, cell_index->row);
+      timer_countdown_window_push(app_data, s_timer_group_index, cell_index->row);
       break;
     case 1:
       // Edit/create timer

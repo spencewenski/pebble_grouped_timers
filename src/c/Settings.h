@@ -12,9 +12,9 @@ enum Settings_field {
 };
 
 enum Repeat_style {
-  REPEAT_STYLE_NONE,
-  REPEAT_STYLE_SINGLE,
-  REPEAT_STYLE_GROUP,
+  REPEAT_STYLE_NONE,    // Progress to the next timer, but don't repeat the group
+  REPEAT_STYLE_SINGLE,  // Repeat the current timer
+  REPEAT_STYLE_GROUP,   // Progress to the next timer, repeating the group if at the last timer in the group
   REPEAT_STYLE_INVALID
 };
 
