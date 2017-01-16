@@ -1,7 +1,13 @@
-#include <pebble.h>
 #include "draw_utility.h"
+#include "assert.h"
+
+#include <pebble.h>
 
 void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text) {
+  assert(ctx);
+  assert(cell_layer);
+  assert(text);
+
   GSize size = layer_get_frame(cell_layer).size;
   graphics_draw_text(ctx,
                      text,
@@ -13,9 +19,12 @@ void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* t
 }
 
 void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text) {
+  assert(ctx);
+  assert(cell_layer);
+  assert(text);
+
   GRect bounds = layer_get_bounds(cell_layer);
   GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
-  
   graphics_draw_text(ctx,
                      text,
                      font,

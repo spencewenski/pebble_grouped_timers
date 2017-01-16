@@ -1,12 +1,11 @@
 #include "Utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 
 void* safe_alloc(int size) {
   void* ptr = malloc(size);
-  if (!ptr) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Failed memory allocation of size %d", size);
-  }
+  assert(ptr);
   return ptr;
 }
 

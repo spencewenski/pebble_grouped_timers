@@ -7,6 +7,7 @@
 #include "timer_edit_window.h"
 #include "timer_countdown_window.h"
 #include "draw_utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -37,10 +38,7 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
 void timer_group_window_push(struct App_data* app_data, int timer_group) {
   s_timer_group_window = window_create();
   
-  if (!s_timer_group_window) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer group window");
-    return;
-  }
+  assert(s_timer_group_window);
   
   s_timer_group_index = timer_group;
     
@@ -60,9 +58,7 @@ static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
-  if (!s_menu_layer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
-  }
+  assert(s_menu_layer);
   struct App_data* app_data = window_get_user_data(window);
   
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
@@ -136,16 +132,15 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 }
 
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data) {
+  assert(ctx);
+  assert(cell_layer);
+  assert(data);
+  
   struct App_data* app_data = data;
   struct List* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
-  if (!timer_group) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer_group pointer");
-    return;
-  }
-  if (!in_range(row_index, 0, list_size(timer_group))) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid row index: %d", row_index);
-    return;
-  }
+  assert(timer_group);
+  assert(in_range(row_index, 0, list_size(timer_group)));
+
   struct Timer* timer = list_get(timer_group, row_index);
   char menu_text[MENU_TEXT_LENGTH];
   if (timer_get_field(timer, TIMER_FIELD_HOURS) > 0) {

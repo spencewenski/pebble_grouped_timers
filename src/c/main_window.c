@@ -6,6 +6,7 @@
 #include "settings_window.h"
 #include "globals.h"
 #include "draw_utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -34,11 +35,8 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
 void main_window_push(struct App_data* app_data) {
   s_main_window = window_create();
   
-  if (!s_main_window) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
-    return;
-  }
-  
+  assert(s_main_window);
+
   window_set_user_data(s_main_window, app_data);
   
   window_set_window_handlers(s_main_window, (WindowHandlers) {
@@ -56,9 +54,8 @@ static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
-  if (!s_menu_layer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
-  }
+  assert(s_menu_layer);
+
   struct App_data* app_data = window_get_user_data(window);
   
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
@@ -92,15 +89,14 @@ static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data
 }
 
 static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
+  assert(menu_layer);
+  assert(data);
+
   struct App_data* app_data = data;
   
   switch (section_index) {
     case 0:
       // Timer groups
-      if (!app_data) {
-        APP_LOG(APP_LOG_LEVEL_ERROR, "Null data pointer");
-        return 0;
-      }
       return list_size(app_data_get_timer_groups(app_data));
     case 1:
       // Settings
@@ -142,18 +138,17 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 }
 
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data) {
+  assert(ctx);
+  assert(cell_layer);
+  assert(data);
+
   struct App_data* app_data = data;
   struct List* timer_groups = app_data_get_timer_groups(app_data);
-  if (!in_range(row_index, 0, list_size(timer_groups))) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid row index: %d", row_index);
-    return;
-  }
+  assert(in_range(row_index, 0, list_size(timer_groups)));
+  
   struct List* timer_group = list_get(timer_groups, row_index);
+  assert(timer_group);
 
-  if (!timer_group) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer_group pointer");
-    return;
-  }
   char menu_text[MENU_TEXT_LENGTH];
   char* timer_text = list_size(timer_group) == 1 ? "Timer" : "Timers";
   snprintf(menu_text, sizeof(menu_text), "%d %s", list_size(timer_group), timer_text);
@@ -182,10 +177,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
   switch (cell_index->section) {
     case 0:
       // Timer group
-      if (!in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data)))) {
-        APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid row index: %d", cell_index->row);
-        return;
-      }
+      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data))));
       timer_group_window_push(app_data, cell_index->row);
       break;
     case 1:

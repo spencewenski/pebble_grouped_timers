@@ -2,6 +2,7 @@
 #include "Settings.h"
 #include "globals.h"
 #include "App_data.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -28,10 +29,7 @@ static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_styl
 void settings_window_push(struct App_data* app_data) {
   s_settings_window = window_create();
   
-  if (!s_settings_window) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
-    return;
-  }
+  assert(s_settings_window);
   
   window_set_user_data(s_settings_window, app_data);
   
@@ -48,9 +46,8 @@ static void window_load_handler(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
-  if (!s_menu_layer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
-  }
+  assert(s_menu_layer);
+
   struct App_data* app_data = window_get_user_data(window);
   
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {

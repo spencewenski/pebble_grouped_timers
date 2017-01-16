@@ -1,5 +1,6 @@
 #include "List.h"
 #include "Utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -22,39 +23,27 @@ struct List* list_create() {
 }
 
 static void init_empty_intern(struct List* list) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
   list->array = safe_alloc(sizeof(void*) * DEFAULT_ARRAY_SIZE);
   list->allocated_size = DEFAULT_ARRAY_SIZE;
   list->size = 0;
 }
 
 void list_destroy(struct List* list) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
 	free(list->array);
   list->array = NULL;
   free(list);
 }
 
 void list_clear(struct List* list) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
 	free(list->array);
   init_empty_intern(list);
 }
 
 void list_add(struct List* list, void* item) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
   if (list->size >= list->allocated_size) {
     grow_list_intern(list);
   }
@@ -73,26 +62,17 @@ static void grow_list_intern(struct List* list) {
 }
 
 int list_size(const struct List* list) {
-	if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return -1;
-  }
+  assert(list);
   return list->size;
 }
 
 int list_empty(const struct List* list) {
-	if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return -1;
-  }
+  assert(list);
   return list->size ? 0 : 1;
 }
 
 void* list_get(struct List* list, int index) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return NULL;
-  }
+  assert(list);
   if (!in_range(index, 0, list->size)) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "invalid index");
     return NULL;
@@ -101,10 +81,7 @@ void* list_get(struct List* list, int index) {
 }
 
 void list_remove(struct List* list, int index) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
   if (!in_range(index, 0, list->size)) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "invalid index");
     return;
@@ -116,10 +93,7 @@ void list_remove(struct List* list, int index) {
 }
 
 void list_apply(const struct List* list, List_apply_fp_t func_ptr) {
-  if (!list) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null list pointer");
-    return;
-  }
+  assert(list);
   for (int i = 0; i < list->size; ++i) {
     func_ptr(list->array[i]);
   }

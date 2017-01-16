@@ -1,5 +1,6 @@
 #include "Settings.h"
 #include "Utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -18,50 +19,32 @@ void settings_destroy(struct Settings* settings) {
 }
 
 void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return;
-  }
+  assert(settings);
   settings->repeat_style = repeat_style;
 }
 
 enum Repeat_style settings_get_repeat_style(struct Settings* settings) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return REPEAT_STYLE_INVALID;
-  }
+  assert(settings);
   return settings->repeat_style;
 }
 
 void settings_set_progress_style(struct Settings* settings, enum Progress_style progress_style) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return;
-  }
+  assert(settings);
   settings->progress_style = progress_style;
 }
 
 enum Progress_style settings_get_progress_style(struct Settings* settings) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return PROGRESS_STYLE_INVALID;
-  }
+  assert(settings);
   return settings->progress_style;
 }
 
 void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vibrate_style) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return;
-  }
+  assert(settings);
   settings->vibrate_style = vibrate_style;
 }
 
 enum Vibrate_style settings_get_vibrate_style(struct Settings* settings) {
-  if (!settings) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null settings pointer");
-    return VIBRATE_STYLE_INVALID;
-  }
+  assert(settings);
   return settings->vibrate_style;
 }
 

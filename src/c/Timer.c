@@ -1,8 +1,10 @@
 #include "Timer.h"
 #include "Utility.h"
+#include "assert.h"
 
 #include <pebble.h>
 #include <stdlib.h>
+#include <math.h>
 
 #define DEFAULT_VALUE 0
 #define MAX_HOURS 60
@@ -32,10 +34,7 @@ void timer_destroy(struct Timer* timer) {
 }
 
 void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
       timer->hours = wrap_value(value, 0, get_max_value(timer_field));
@@ -69,10 +68,7 @@ static int get_max_value(enum Timer_field timer_field) {
 }
 
 int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
       return timer->hours;
@@ -88,10 +84,7 @@ int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
 }
 
 void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
       timer_set_field(timer, timer_field, timer->hours + amount);
@@ -116,18 +109,12 @@ void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
 }
 
 int timer_get_length_seconds(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   return (timer->hours * SECONDS_PER_HOUR) + (timer->minutes * SECONDS_PER_MINUTE) + timer->seconds;
 }
 
 int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_field) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   if (!timer_is_running(timer)) {
     return timer_get_field(timer, timer_field);
   }
@@ -147,21 +134,16 @@ int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_
 }
 
 int timer_get_remaining_seconds(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   if (!timer_is_running(timer)) {
     return timer_get_length_seconds(timer);
   }
-  return timer_get_length_seconds(timer) - timer->elapsed_seconds;
+  int remaining = timer_get_length_seconds(timer) - timer->elapsed_seconds;
+  return remaining > 0 ? remaining : 0;
 }
 
 void timer_update(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   if (!timer_is_running(timer)) {
     // Timer not running; nothing to update
     return ;
@@ -172,26 +154,17 @@ void timer_update(struct Timer* timer) {
 }
 
 int timer_is_running(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   return timer->start_time_seconds > 0 ? 1 : 0;
 }
 
 int timer_is_elapsed(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return 0;
-  }
+  assert(timer);
   return timer->elapsed_seconds >= timer_get_length_seconds(timer) ? 1 : 0;
 }
 
 void timer_start(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   if (timer->start_time_seconds > 0) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer already started");
     return;
@@ -200,10 +173,7 @@ void timer_start(struct Timer* timer) {
 }
 
 void timer_pause(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   if (timer->start_time_seconds <= 0) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer not started");
     return;
@@ -214,10 +184,7 @@ void timer_pause(struct Timer* timer) {
 
 // Reset timer back to its original value
 void timer_reset(struct Timer* timer) {
-  if (!timer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer pointer");
-    return;
-  }
+  assert(timer);
   timer->start_time_seconds = 0;
   timer->elapsed_seconds = 0;
 }

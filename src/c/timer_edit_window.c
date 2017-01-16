@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "Timer.h"
 #include "List.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -36,10 +37,7 @@ static enum Timer_field get_timer_field(int timer_edit_index);
 void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
   s_timer_edit_window = window_create();
   
-  if (!s_timer_edit_window) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
-    return;
-  }
+  assert(s_timer_edit_window);
   
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;

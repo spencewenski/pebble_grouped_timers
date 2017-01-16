@@ -42,7 +42,11 @@ static void init_fake_data(struct App_data* app_data) {
   timer_group = list_get(timer_groups, 1);
   
   timer = timer_create();
-  timer_set_all(timer, 0, 0, 15);
+  timer_set_all(timer, 0, 15, 0);
+  list_add(timer_group, timer);
+
+  timer = timer_create();
+  timer_set_all(timer, 0, 45, 0);
   list_add(timer_group, timer);
 
   // Settings

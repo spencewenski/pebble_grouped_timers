@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Settings.h"
 #include "List.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -12,6 +13,7 @@ static TextLayer* s_timer_text_layer;
 static int s_timer_group_index;
 static int s_timer_index;
 static AppTimer* s_app_timer_handle;
+static AppTimer* s_app_timer_vibrate_handle;
 
 static char s_timer_text_buffer[TIMER_TEXT_LENGTH];
 
@@ -28,8 +30,9 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context);
 
 // Timer handler
 static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data);
-static void cancel_app_timer();
+static void cancel_app_timers();
 static void timer_handler(void* data);
+static void vibrate_timer_handler(void* data);
 
 // Helpers
 static void update_current_timer(struct App_data* app_data);
@@ -37,10 +40,7 @@ static void update_current_timer(struct App_data* app_data);
 void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
   s_timer_countdown_window = window_create();
   
-  if (!s_timer_countdown_window) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null main window");
-    return;
-  }
+  assert(s_timer_countdown_window);
   
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;
@@ -69,10 +69,8 @@ void window_load_handler(Window* window) {
   timer_bounds.size.h = TIMER_TEXT_HEIGHT;
   grect_align(&timer_bounds, &window_bounds, GAlignLeft, false);
   s_timer_text_layer = text_layer_create(timer_bounds);
-  if (!s_timer_text_layer) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null menu layer");
-    return;
-  }
+  assert(s_timer_text_layer);
+
   text_layer_set_text_color(s_timer_text_layer, GColorBlack);
   text_layer_set_background_color(s_timer_text_layer, GColorWhite);
   text_layer_set_text_alignment(s_timer_text_layer, GTextAlignmentCenter);
@@ -84,7 +82,7 @@ void window_load_handler(Window* window) {
 }
 
 void window_unload_handler(Window* window) {
-  cancel_app_timer();
+  cancel_app_timers();
 
   text_layer_destroy(s_timer_text_layer);
   s_timer_text_layer = NULL;
@@ -104,8 +102,9 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_update(timer);
   if (timer_is_elapsed(timer)) {
-    timer_reset(timer);
     if (settings_get_progress_style(settings) == PROGRESS_STYLE_WAIT_FOR_USER) {
+      cancel_app_timers();
+      timer_reset(timer);
       update_current_timer(app_data);
       timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
       timer_start(timer);
@@ -117,7 +116,7 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
   }
   if (timer_is_running(timer)) {
     timer_pause(timer);
-    cancel_app_timer();
+    cancel_app_timers();
   } else {
     timer_start(timer);
     start_app_timer(0, timer_handler, app_data);
@@ -128,12 +127,15 @@ static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void
   s_app_timer_handle = app_timer_register(delay, app_timer_callback, data);
 }
 
-static void cancel_app_timer() {
-  if (!s_app_timer_handle) {
-    return;
+static void cancel_app_timers() {
+  if (s_app_timer_handle) {
+    app_timer_cancel(s_app_timer_handle);
+    s_app_timer_handle = NULL;
   }
-  app_timer_cancel(s_app_timer_handle);
-  s_app_timer_handle = NULL;
+  if (s_app_timer_vibrate_handle) {
+    app_timer_cancel(s_app_timer_vibrate_handle);
+    s_app_timer_vibrate_handle = NULL;
+  }
 }
 
 static void timer_handler(void* data) {
@@ -145,7 +147,11 @@ static void timer_handler(void* data) {
     return;
   }
   struct Settings* settings = app_data_get_settings(app_data);
+  if (timer_is_elapsed(timer)) {
+    vibrate_timer_handler(app_data);
+  }
   if (timer_is_elapsed(timer) && settings_get_progress_style(settings) == PROGRESS_STYLE_AUTO) {
+    cancel_app_timers();
     timer_reset(timer);
     update_current_timer(app_data);
     timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
@@ -155,6 +161,17 @@ static void timer_handler(void* data) {
     return;
   }
   start_app_timer(MS_PER_SECOND, timer_handler, app_data);
+}
+
+static void vibrate_timer_handler(void* data) {
+  s_app_timer_vibrate_handle = NULL;
+  vibes_double_pulse();
+  struct App_data* app_data = data;
+  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  if (!timer_is_running(timer) || !timer_is_elapsed(timer)) {
+    return;
+  }
+  s_app_timer_vibrate_handle = app_timer_register(MS_PER_MINUTE, vibrate_timer_handler, data);
 }
 
 static void update_current_timer(struct App_data* app_data) {

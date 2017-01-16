@@ -4,6 +4,7 @@
 #include "Settings.h"
 #include "Timer.h"
 #include "globals.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -20,10 +21,7 @@ struct App_data* app_data_create() {
 }
 
 void app_data_destroy(struct App_data* app_data) {
-	if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null app_data pointer");
-    return;
-  }
+  assert(app_data);
   for (int i = 0; i < list_size(app_data->timer_groups); ++i) {
     struct List* timer_group = list_get(app_data->timer_groups, i);
     list_apply(timer_group, (List_apply_fp_t)timer_destroy);
@@ -37,26 +35,17 @@ void app_data_destroy(struct App_data* app_data) {
 }
 
 struct List* app_data_get_timer_groups(struct App_data* app_data) {
-	if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null app_data pointer");
-    return NULL;
-  }
+  assert(app_data);
   return app_data->timer_groups;
 }
 
 struct Settings* app_data_get_settings(struct App_data* app_data) {
-	if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "null app_data pointer");
-    return NULL;
-  }
+  assert(app_data);
   return app_data->settings;
 }
 
 struct List* app_data_get_timer_group(struct App_data* app_data, int timer_group_index) {
-  if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
-    return NULL;
-  }
+  assert(app_data);
   if (timer_group_index == INVALID_INDEX) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
     return NULL;
@@ -65,10 +54,7 @@ struct List* app_data_get_timer_group(struct App_data* app_data, int timer_group
 }
 
 struct Timer* app_data_get_timer(struct App_data* app_data, int timer_group_index, int timer_index) { 
-  if (!app_data) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null app_data pointer");
-    return NULL;
-  }
+  assert(app_data);
   if (timer_group_index == INVALID_INDEX) {
     APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
     return NULL;
