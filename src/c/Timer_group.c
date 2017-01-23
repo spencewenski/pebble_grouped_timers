@@ -3,16 +3,19 @@
 #include "utility.h"
 #include "Timer.h"
 #include "assert.h"
+#include "Settings.h"
 
 #include <pebble.h>
 
 struct Timer_group {
   struct List* timers;
+  struct Settings* settings;
 };
 
 struct Timer_group* timer_group_create() {
   struct Timer_group* timer_group = safe_alloc(sizeof(struct Timer_group));
   timer_group->timers = list_create();
+  timer_group->settings = settings_create();
   return timer_group;
 }
 
@@ -20,7 +23,14 @@ void timer_group_destroy(struct Timer_group* timer_group) {
   assert(timer_group);
   list_apply(timer_group->timers, (List_apply_fp_t)timer_destroy);
   list_destroy(timer_group->timers);
+  settings_destroy(timer_group->settings);
   free(timer_group);
+}
+
+struct Settings* timer_group_get_settings(struct Timer_group* timer_group) {
+  assert(timer_group);
+
+  return timer_group->settings;
 }
 
 struct List* timer_group_get_timers(struct Timer_group* timer_group) {

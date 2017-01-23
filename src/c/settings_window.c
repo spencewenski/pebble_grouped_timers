@@ -3,11 +3,13 @@
 #include "globals.h"
 #include "App_data.h"
 #include "assert.h"
+#include "Timer_group.h"
 
 #include <pebble.h>
 
 static Window* s_settings_window;
 static MenuLayer* s_menu_layer;
+static int s_timer_group_index;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -21,15 +23,18 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
 // Helpers
+static struct Settings* get_settings(struct App_data* app_data, int timer_group_index);
 static enum Settings_field get_settings_field(int settings_field_index);
 static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style);
 static enum Progress_style get_next_progress_style(enum Progress_style progress_style);
 static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_style);
 
-void settings_window_push(struct App_data* app_data) {
+void settings_window_push(struct App_data* app_data, int timer_group) {
   s_settings_window = window_create();
   
   assert(s_settings_window);
+
+  s_timer_group_index = timer_group;
   
   window_set_user_data(s_settings_window, app_data);
   
@@ -86,7 +91,7 @@ static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* c
 
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data) {
   struct App_data* app_data = data;
-  struct Settings* settings = app_data_get_settings(app_data);
+  struct Settings* settings = get_settings(app_data, s_timer_group_index);
   
   GSize size = layer_get_bounds(cell_layer).size;
   GFont big_font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
@@ -126,6 +131,14 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
                      NULL);
 }
 
+static struct Settings* get_settings(struct App_data* app_data, int timer_group_index) {
+  if (s_timer_group_index < 0) {
+    return app_data_get_settings(app_data);
+  } else {
+    return timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
+  }
+}
+
 static enum Settings_field get_settings_field(int settings_field_index) {
   switch (settings_field_index) {
     case 0:
@@ -141,7 +154,7 @@ static enum Settings_field get_settings_field(int settings_field_index) {
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
   struct App_data* app_data = data;
-  struct Settings* settings = app_data_get_settings(app_data);
+  struct Settings* settings = get_settings(app_data, s_timer_group_index);
   enum Settings_field settings_field = get_settings_field(cell_index->row);
   
   switch (settings_field) {

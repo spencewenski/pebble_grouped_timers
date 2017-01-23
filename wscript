@@ -18,7 +18,6 @@ out = 'build'
 def options(ctx):
     ctx.load('pebble_sdk')
 
-
 def configure(ctx):
     ctx.load('pebble_sdk')
 
@@ -36,6 +35,7 @@ def build(ctx):
 
     for p in ctx.env.TARGET_PLATFORMS:
         ctx.set_env(ctx.all_envs[p])
+        # Uncomment to disable asserts
         # ctx.env.append_value('CFLAGS', ['-DNDEBUG'])
         ctx.set_group(ctx.env.PLATFORM_NAME)
         app_elf = '{}/pebble-app.elf'.format(ctx.env.BUILD_DIR)

@@ -183,7 +183,6 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       timer_group_window_push(app_data, cell_index->row);
       break;
     case 1:
-      // Settings
       if (cell_index->row == 0) {
         // New timer group
         struct List* timer_groups = app_data_get_timer_groups(app_data);
@@ -191,7 +190,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         timer_group_window_push(app_data, list_size(timer_groups) - 1);
       } else if (cell_index->row == 1) {
         // Settings
-        settings_window_push(app_data);
+        settings_window_push(app_data, INVALID_INDEX);
       }
       break;
     default:

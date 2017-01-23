@@ -99,7 +99,7 @@ static void click_config_provider(void* context) {
 
 static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
   struct App_data* app_data = window_get_user_data(context);
-  struct Settings* settings = app_data_get_settings(app_data);
+  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_update(timer);
   if (timer_is_elapsed(timer)) {
@@ -147,7 +147,7 @@ static void timer_handler(void* data) {
   if (!timer_is_running(timer)) {
     return;
   }
-  struct Settings* settings = app_data_get_settings(app_data);
+  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
   if (timer_is_elapsed(timer)) {
     vibrate_timer_handler(app_data);
   }
@@ -180,7 +180,7 @@ static void update_current_timer(struct App_data* app_data) {
   if (timer_group_size(timer_group) <= 0) {
     return;
   }
-  struct Settings* settings = app_data_get_settings(app_data);
+  struct Settings* settings = timer_group_get_settings(timer_group);
   enum Repeat_style repeat_style = settings_get_repeat_style(settings);
   switch (repeat_style) {
     case REPEAT_STYLE_NONE:

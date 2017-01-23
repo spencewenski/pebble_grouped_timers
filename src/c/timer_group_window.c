@@ -9,11 +9,12 @@
 #include "draw_utility.h"
 #include "Timer_group.h"
 #include "assert.h"
+#include "settings_window.h"
 
 #include <pebble.h>
 
 #define MENU_NUM_SECTIONS 2
-#define SETTINGS_NUM_ROWS 1
+#define SETTINGS_NUM_ROWS 2
 
 static Window* s_timer_group_window;
 static MenuLayer* s_menu_layer;
@@ -123,8 +124,16 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
       menu_cell_draw_timer_row(ctx, cell_layer, cell_index->row, data);
       return;
     case 1:
-      // New timer
-      menu_cell_draw_text_row(ctx, cell_layer, "New Timer");
+      if (cell_index->row == 0) {
+        // New timer
+        menu_cell_draw_text_row(ctx, cell_layer, "New Timer");
+        return;
+      }
+      if (cell_index->row == 1) {
+        // Settings
+        menu_cell_draw_text_row(ctx, cell_layer, "Settings");
+        return;
+      }
       return;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
@@ -182,9 +191,14 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       timer_countdown_window_push(app_data, s_timer_group_index, cell_index->row);
       break;
     case 1:
-      // Edit/create timer
-      timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
-      timer_edit_window_push(app_data, s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
+      if (cell_index->row == 0) {
+        // Edit/create timer
+        timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
+        timer_edit_window_push(app_data, s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
+      } else if (cell_index->row == 1) {
+        // Settings
+        settings_window_push(app_data, s_timer_group_index);
+      }
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);

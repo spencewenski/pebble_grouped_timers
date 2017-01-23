@@ -11,7 +11,11 @@ struct Settings {
 };
 
 struct Settings* settings_create() {
-  return safe_alloc(sizeof(struct Settings));
+  struct Settings* settings = safe_alloc(sizeof(struct Settings));
+  settings->repeat_style = REPEAT_STYLE_NONE;
+  settings->progress_style = PROGRESS_STYLE_NONE;
+  settings->vibrate_style = VIBRATE_STYLE_NONE;
+  return settings;
 }
 
 void settings_destroy(struct Settings* settings) {
