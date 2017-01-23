@@ -7,6 +7,7 @@
 #include "timer_edit_window.h"
 #include "timer_countdown_window.h"
 #include "draw_utility.h"
+#include "Timer_group.h"
 #include "assert.h"
 
 #include <pebble.h>
@@ -97,7 +98,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   switch (section_index) {
     case 0:
       // Timers
-      return list_size(app_data_get_timer_group(app_data, s_timer_group_index));
+      return timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index));
     case 1:
       // Settings
       return SETTINGS_NUM_ROWS;
@@ -137,11 +138,11 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
   assert(data);
   
   struct App_data* app_data = data;
-  struct List* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
+  struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
   assert(timer_group);
-  assert(in_range(row_index, 0, list_size(timer_group)));
+  struct Timer* timer = timer_group_get_timer(timer_group, row_index);
+  assert(timer);
 
-  struct Timer* timer = list_get(timer_group, row_index);
   char menu_text[MENU_TEXT_LENGTH];
   if (timer_get_field(timer, TIMER_FIELD_HOURS) > 0) {
     snprintf(menu_text, sizeof(menu_text), "%d:%.2d:%.2d",
@@ -182,8 +183,8 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       break;
     case 1:
       // Edit/create timer
-      list_add(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
-      timer_edit_window_push(app_data, s_timer_group_index, list_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
+      timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
+      timer_edit_window_push(app_data, s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);

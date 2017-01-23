@@ -2,6 +2,7 @@
 #include "List.h"
 #include "utility.h"
 #include "Timer.h"
+#include "assert.h"
 
 #include <pebble.h>
 
@@ -11,19 +12,12 @@ struct Timer_group {
 
 struct Timer_group* timer_group_create() {
   struct Timer_group* timer_group = safe_alloc(sizeof(struct Timer_group));
-  if (!timer_group) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer group pointer");
-    return NULL;
-  }
   timer_group->timers = list_create();
   return timer_group;
 }
 
 void timer_group_destroy(struct Timer_group* timer_group) {
-  if (!timer_group) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "Null timer group pointer");
-    return;
-  }
+  assert(timer_group);
   list_apply(timer_group->timers, (List_apply_fp_t)timer_destroy);
   list_destroy(timer_group->timers);
   free(timer_group);
@@ -35,4 +29,29 @@ struct List* timer_group_get_timers(struct Timer_group* timer_group) {
     return NULL;
   }
   return timer_group->timers;
+}
+
+void timer_group_add_timer(struct Timer_group* timer_group, struct Timer* timer) {
+  assert(timer_group);
+  assert(timer);
+
+  list_add(timer_group->timers, timer);
+}
+
+void timer_group_remove_timer(struct Timer_group* timer_group, int index) {
+  assert(timer_group);
+
+  list_remove(timer_group->timers, index);
+}
+
+int timer_group_size(struct Timer_group* timer_group) {
+  assert(timer_group);
+
+  return list_size(timer_group->timers);
+}
+
+struct Timer* timer_group_get_timer(struct Timer_group* timer_group, int index) {
+  assert(timer_group);
+
+  return list_get(timer_group->timers, index);
 }

@@ -6,6 +6,7 @@
 #include "settings_window.h"
 #include "globals.h"
 #include "draw_utility.h"
+#include "Timer_group.h"
 #include "assert.h"
 
 #include <pebble.h>
@@ -146,12 +147,13 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
   struct List* timer_groups = app_data_get_timer_groups(app_data);
   assert(in_range(row_index, 0, list_size(timer_groups)));
   
-  struct List* timer_group = list_get(timer_groups, row_index);
+  struct Timer_group* timer_group = list_get(timer_groups, row_index);
   assert(timer_group);
 
   char menu_text[MENU_TEXT_LENGTH];
-  char* timer_text = list_size(timer_group) == 1 ? "Timer" : "Timers";
-  snprintf(menu_text, sizeof(menu_text), "%d %s", list_size(timer_group), timer_text);
+  int num_timers = timer_group_size(timer_group);
+  char* timer_text = num_timers == 1 ? "Timer" : "Timers";
+  snprintf(menu_text, sizeof(menu_text), "%d %s", num_timers, timer_text);
   
   menu_cell_draw_text_row(ctx, cell_layer, menu_text);
 }
@@ -185,7 +187,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       if (cell_index->row == 0) {
         // New timer group
         struct List* timer_groups = app_data_get_timer_groups(app_data);
-        list_add(timer_groups, list_create());
+        list_add(timer_groups, timer_group_create());
         timer_group_window_push(app_data, list_size(timer_groups) - 1);
       } else if (cell_index->row == 1) {
         // Settings

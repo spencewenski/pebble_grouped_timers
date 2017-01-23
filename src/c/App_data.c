@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "globals.h"
 #include "assert.h"
+#include "Timer_group.h"
 
 #include <pebble.h>
 
@@ -22,11 +23,7 @@ struct App_data* app_data_create() {
 
 void app_data_destroy(struct App_data* app_data) {
   assert(app_data);
-  for (int i = 0; i < list_size(app_data->timer_groups); ++i) {
-    struct List* timer_group = list_get(app_data->timer_groups, i);
-    list_apply(timer_group, (List_apply_fp_t)timer_destroy);
-  }
-  list_apply(app_data->timer_groups, (List_apply_fp_t)list_destroy);
+  list_apply(app_data->timer_groups, (List_apply_fp_t)timer_group_destroy);
   list_destroy(app_data->timer_groups);
   app_data->timer_groups = NULL;
   settings_destroy(app_data->settings);
@@ -44,25 +41,14 @@ struct Settings* app_data_get_settings(struct App_data* app_data) {
   return app_data->settings;
 }
 
-struct List* app_data_get_timer_group(struct App_data* app_data, int timer_group_index) {
+struct Timer_group* app_data_get_timer_group(struct App_data* app_data, int timer_group_index) {
   assert(app_data);
-  if (timer_group_index == INVALID_INDEX) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
-    return NULL;
-  }
   return list_get(app_data->timer_groups, timer_group_index);
 }
 
 struct Timer* app_data_get_timer(struct App_data* app_data, int timer_group_index, int timer_index) { 
   assert(app_data);
-  if (timer_group_index == INVALID_INDEX) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer group index");
-    return NULL;
-  }
-  if (timer_index == INVALID_INDEX) {
-    APP_LOG(APP_LOG_LEVEL_DEBUG, "Invalid timer index");
-    return NULL;
-  }
-  struct List* timer_group = app_data_get_timer_group(app_data, timer_group_index);
-  return list_get(timer_group, timer_index);
+  struct Timer_group* timer_group = app_data_get_timer_group(app_data, timer_group_index);
+  assert(timer_group);
+  return timer_group_get_timer(timer_group, timer_index);
 }

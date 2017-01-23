@@ -115,10 +115,10 @@ int timer_get_length_seconds(struct Timer* timer) {
 
 int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_field) {
   assert(timer);
-  if (!timer_is_running(timer)) {
+  int remaining_seconds = timer_get_remaining_seconds(timer);
+  if (remaining_seconds == timer_get_length_seconds(timer)) {
     return timer_get_field(timer, timer_field);
   }
-  int remaining_seconds = timer_get_remaining_seconds(timer);
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
       return remaining_seconds / SECONDS_PER_HOUR;
@@ -135,7 +135,8 @@ int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_
 
 int timer_get_remaining_seconds(struct Timer* timer) {
   assert(timer);
-  if (!timer_is_running(timer)) {
+  // If the timer isn't started
+  if (!timer_is_running(timer) && !timer_is_paused(timer)) {
     return timer_get_length_seconds(timer);
   }
   int remaining = timer_get_length_seconds(timer) - timer->elapsed_seconds;
@@ -156,6 +157,11 @@ void timer_update(struct Timer* timer) {
 int timer_is_running(struct Timer* timer) {
   assert(timer);
   return timer->start_time_seconds > 0 ? 1 : 0;
+}
+
+int timer_is_paused(struct Timer* timer) {
+  assert(timer);
+  return timer->start_time_seconds <= 0 && timer->elapsed_seconds > 0 ? 1 : 0;
 }
 
 int timer_is_elapsed(struct Timer* timer) {

@@ -25,6 +25,9 @@ int timer_get_remaining_seconds(struct Timer* timer);
 // Return non-zero if timer is running, zero otherwise
 // Client should call timer_update to get the most accurate result
 int timer_is_running(struct Timer* timer);
+// Return non-zero if timer is paused, zero otherwise
+// Client should call timer_update to get the most accurate result
+int timer_is_paused(struct Timer* timer);
 // Return non-zero if timer is elapsed, zero otherwise
 // Client should call timer_update to get the most accurate result
 int timer_is_elapsed(struct Timer* timer);

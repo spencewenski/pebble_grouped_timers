@@ -3,6 +3,7 @@
 #include "globals.h"
 #include "Timer.h"
 #include "List.h"
+#include "Timer_group.h"
 #include "assert.h"
 
 #include <pebble.h>
@@ -86,7 +87,7 @@ static void window_unload_handler(Window* window) {
   struct App_data* app_data = window_get_user_data(window);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   if (timer_get_length_seconds(timer) <= 0) {
-    list_remove(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
+    timer_group_remove_timer(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
   }
   
   text_layer_destroy(s_timer_text_layer);

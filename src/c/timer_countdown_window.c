@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "Settings.h"
 #include "List.h"
+#include "Timer_group.h"
 #include "assert.h"
 
 #include <pebble.h>
@@ -175,15 +176,15 @@ static void vibrate_timer_handler(void* data) {
 }
 
 static void update_current_timer(struct App_data* app_data) {
-  struct List* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
-  if (list_size(timer_group) <= 0) {
+  struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
+  if (timer_group_size(timer_group) <= 0) {
     return;
   }
   struct Settings* settings = app_data_get_settings(app_data);
   enum Repeat_style repeat_style = settings_get_repeat_style(settings);
   switch (repeat_style) {
     case REPEAT_STYLE_NONE:
-      if (s_timer_index >= (list_size(timer_group) - 1)) {
+      if (s_timer_index >= (timer_group_size(timer_group) - 1)) {
         return;
       }
       ++s_timer_index;
@@ -191,7 +192,7 @@ static void update_current_timer(struct App_data* app_data) {
     case REPEAT_STYLE_SINGLE:
       return;
     case REPEAT_STYLE_GROUP:
-      if (s_timer_index >= (list_size(timer_group) - 1)) {
+      if (s_timer_index >= (timer_group_size(timer_group) - 1)) {
         s_timer_index = 0;
         return;
       }
