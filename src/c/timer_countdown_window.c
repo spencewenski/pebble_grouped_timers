@@ -27,6 +27,7 @@ static void update_timer_text_layer(struct Timer* timer);
 
 // Click handlers
 static void click_config_provider(void* context);
+static void click_handler_up(ClickRecognizerRef recognizer, void* context);
 static void click_handler_select(ClickRecognizerRef recognizer, void* context);
 
 // Timer handler
@@ -94,7 +95,15 @@ void window_unload_handler(Window* window) {
 
 // Click handlers
 static void click_config_provider(void* context) {
+  window_single_click_subscribe(BUTTON_ID_UP, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
+}
+
+static void click_handler_up(ClickRecognizerRef recognizer, void* context) {
+  struct App_data* app_data = window_get_user_data(context);
+  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  timer_reset(timer);
+  update_timer_text_layer(timer);
 }
 
 static void click_handler_select(ClickRecognizerRef recognizer, void* context) {

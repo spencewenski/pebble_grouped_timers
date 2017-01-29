@@ -107,4 +107,5 @@ static void init_fake_data(struct App_data* app_data) {
 static void deinit(struct App_data* app_data) {
   app_data_save(app_data);
   app_data_destroy(app_data);
+  // persist_delete(PERSIST_VERSION_KEY);
 }

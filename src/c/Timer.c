@@ -27,6 +27,7 @@ struct Timer* timer_create() {
   timer->hours = DEFAULT_VALUE;
   timer->minutes = DEFAULT_VALUE;
   timer->seconds = DEFAULT_VALUE;
+  timer_reset(timer);
   return timer;
 }
 
@@ -197,12 +198,12 @@ void timer_pause(struct Timer* timer) {
     return;
   }
   timer->elapsed_seconds += time(NULL) - timer->start_time_seconds;
-  timer->start_time_seconds = 0;
+  timer->start_time_seconds = DEFAULT_VALUE;
 }
 
 // Reset timer back to its original value
 void timer_reset(struct Timer* timer) {
   assert(timer);
-  timer->start_time_seconds = 0;
-  timer->elapsed_seconds = 0;
+  timer->start_time_seconds = DEFAULT_VALUE;
+  timer->elapsed_seconds = DEFAULT_VALUE;
 }
