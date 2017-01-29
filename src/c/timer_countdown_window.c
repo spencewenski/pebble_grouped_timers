@@ -10,20 +10,23 @@
 #include <pebble.h>
 
 static Window* s_timer_countdown_window;
-static TextLayer* s_timer_text_layer;
+static TextLayer* s_timer_countdown_text_layer;
+static TextLayer* s_timer_length_text_layer;
 static int s_timer_group_index;
 static int s_timer_index;
 static AppTimer* s_app_timer_handle;
 static AppTimer* s_app_timer_vibrate_handle;
 
-static char s_timer_text_buffer[TIMER_TEXT_LENGTH];
+static char s_timer_countdown_text_buffer[TIMER_TEXT_LENGTH];
+static char s_timer_length_text_buffer[TIMER_TEXT_LENGTH];
 
 // Window Handlers
 void window_load_handler(Window* window);
 void window_unload_handler(Window* window);
 
 // Timer display
-static void update_timer_text_layer(struct Timer* timer);
+static void update_timer_countdown_text_layer(struct Timer* timer);
+static void update_timer_length_text_layer(struct Timer* timer);
 
 // Click handlers
 static void click_config_provider(void* context);
@@ -38,6 +41,7 @@ static void vibrate_timer_handler(void* data);
 
 // Helpers
 static void update_current_timer(struct App_data* app_data);
+static void get_timer_text(char* buf, int buf_size, int hours, int minutes, int seconds);
 
 void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
   s_timer_countdown_window = window_create();
@@ -64,30 +68,50 @@ void window_load_handler(Window* window) {
   GRect window_bounds = layer_get_bounds(window_layer);
   
   // Setup other static variables
-  s_timer_text_buffer[0] = '\0';
+  s_timer_countdown_text_buffer[0] = '\0';
+  s_timer_length_text_buffer[0] = '\0';
+
+  struct App_data* app_data = window_get_user_data(window);
+  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   
-  // Setup timer text layer
+  // Setup timer countdown layer
   GRect timer_bounds = window_bounds;
   timer_bounds.size.h = TIMER_TEXT_HEIGHT;
   grect_align(&timer_bounds, &window_bounds, GAlignLeft, false);
-  s_timer_text_layer = text_layer_create(timer_bounds);
-  assert(s_timer_text_layer);
+  s_timer_countdown_text_layer = text_layer_create(timer_bounds);
+  assert(s_timer_countdown_text_layer);
+  text_layer_set_text_color(s_timer_countdown_text_layer, GColorBlack);
+  text_layer_set_background_color(s_timer_countdown_text_layer, GColorWhite);
+  text_layer_set_text_alignment(s_timer_countdown_text_layer, GTextAlignmentCenter);
+  text_layer_set_font(s_timer_countdown_text_layer, fonts_get_system_font(FONT_KEY_LECO_32_BOLD_NUMBERS));
+  layer_add_child(window_layer, text_layer_get_layer(s_timer_countdown_text_layer));
+  update_timer_countdown_text_layer(timer);
 
-  text_layer_set_text_color(s_timer_text_layer, GColorBlack);
-  text_layer_set_background_color(s_timer_text_layer, GColorWhite);
-  text_layer_set_text_alignment(s_timer_text_layer, GTextAlignmentCenter);
-  text_layer_set_font(s_timer_text_layer, fonts_get_system_font(FONT_KEY_LECO_32_BOLD_NUMBERS));
-  layer_add_child(window_layer, text_layer_get_layer(s_timer_text_layer));
-  // Set the timer text
-  struct App_data* app_data = window_get_user_data(window);
+  // Setup timer length layer
+  GRect timer_length_bounds = timer_bounds;
+  timer_length_bounds.size.h = TIMER_TEXT_HEIGHT_SM;
+  grect_align(&timer_length_bounds, &timer_bounds, GAlignBottom, false);
+  s_timer_length_text_layer = text_layer_create(timer_length_bounds);
+  assert(s_timer_length_text_layer);
+  text_layer_set_text_color(s_timer_length_text_layer, GColorBlack);
+  text_layer_set_background_color(s_timer_length_text_layer, GColorWhite);
+  text_layer_set_text_alignment(s_timer_length_text_layer, GTextAlignmentCenter);
+  text_layer_set_font(s_timer_length_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
+  layer_add_child(window_layer, text_layer_get_layer(s_timer_length_text_layer));
+  update_timer_length_text_layer(timer);
+
+  // Start the timer
   start_app_timer(0, timer_handler, app_data);
 }
 
 void window_unload_handler(Window* window) {
   cancel_app_timers();
 
-  text_layer_destroy(s_timer_text_layer);
-  s_timer_text_layer = NULL;
+  text_layer_destroy(s_timer_length_text_layer);
+  s_timer_length_text_layer = NULL;
+
+  text_layer_destroy(s_timer_countdown_text_layer);
+  s_timer_countdown_text_layer = NULL;
   
   window_destroy(s_timer_countdown_window);
   s_timer_countdown_window = NULL;
@@ -103,7 +127,7 @@ static void click_handler_up(ClickRecognizerRef recognizer, void* context) {
   struct App_data* app_data = window_get_user_data(context);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_reset(timer);
-  update_timer_text_layer(timer);
+  update_timer_countdown_text_layer(timer);
 }
 
 static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
@@ -118,10 +142,11 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
       update_current_timer(app_data);
       timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
       timer_start(timer);
+      update_timer_length_text_layer(timer);
       start_app_timer(0, timer_handler, app_data);
       return;
     }
-    update_timer_text_layer(timer);
+    update_timer_countdown_text_layer(timer);
     return;
   }
   if (timer_is_running(timer)) {
@@ -129,6 +154,7 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
     cancel_app_timers();
   } else {
     timer_start(timer);
+    update_timer_length_text_layer(timer);
     start_app_timer(0, timer_handler, app_data);
   }
 }
@@ -152,7 +178,7 @@ static void timer_handler(void* data) {
   s_app_timer_handle = NULL;
   struct App_data* app_data = data;
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
-  update_timer_text_layer(timer);
+  update_timer_countdown_text_layer(timer);
   if (!timer_is_running(timer)) {
     return;
   }
@@ -166,7 +192,8 @@ static void timer_handler(void* data) {
     update_current_timer(app_data);
     timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
     timer_start(timer);
-    update_timer_text_layer(timer);
+    update_timer_length_text_layer(timer);
+    update_timer_countdown_text_layer(timer);
   } else if (timer_is_elapsed(timer)) {
     return;
   }
@@ -215,19 +242,31 @@ static void update_current_timer(struct App_data* app_data) {
   
 }
 
-static void update_timer_text_layer(struct Timer* timer) {
+static void update_timer_countdown_text_layer(struct Timer* timer) {
   timer_update(timer);
-  if (timer_get_field_remaining(timer, TIMER_FIELD_HOURS) > 0) {
-    snprintf(s_timer_text_buffer, sizeof(s_timer_text_buffer), "%.2d:%.2d:%.2d",
-            timer_get_field_remaining(timer, TIMER_FIELD_HOURS),
-            timer_get_field_remaining(timer, TIMER_FIELD_MINUTES),
-            timer_get_field_remaining(timer, TIMER_FIELD_SECONDS));
+  get_timer_text(s_timer_countdown_text_buffer, sizeof(s_timer_countdown_text_buffer),
+    timer_get_field_remaining(timer, TIMER_FIELD_HOURS),
+    timer_get_field_remaining(timer, TIMER_FIELD_MINUTES),
+    timer_get_field_remaining(timer, TIMER_FIELD_SECONDS));
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer value - %s", s_timer_countdown_text_buffer);
+  text_layer_set_text(s_timer_countdown_text_layer, s_timer_countdown_text_buffer);
+  layer_mark_dirty(text_layer_get_layer(s_timer_countdown_text_layer));
+}
+
+static void update_timer_length_text_layer(struct Timer* timer) {
+  get_timer_text(s_timer_length_text_buffer, sizeof(s_timer_length_text_buffer),
+    timer_get_field(timer, TIMER_FIELD_HOURS),
+    timer_get_field(timer, TIMER_FIELD_MINUTES),
+    timer_get_field(timer, TIMER_FIELD_SECONDS));
+  text_layer_set_text(s_timer_length_text_layer, s_timer_length_text_buffer);
+  layer_mark_dirty(text_layer_get_layer(s_timer_length_text_layer));
+}
+
+static void get_timer_text(char* buf, int buf_size, int hours, int minutes,
+    int seconds) {
+  if (hours > 0) {
+    snprintf(buf, buf_size, "%.2d:%.2d:%.2d", hours, minutes, seconds);
   } else {
-    snprintf(s_timer_text_buffer, sizeof(s_timer_text_buffer), "%.2d:%.2d",
-            timer_get_field_remaining(timer, TIMER_FIELD_MINUTES),
-            timer_get_field_remaining(timer, TIMER_FIELD_SECONDS));
+    snprintf(buf, buf_size, "%.2d:%.2d", minutes, seconds);
   }
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer value - %s", s_timer_text_buffer);
-  text_layer_set_text(s_timer_text_layer, s_timer_text_buffer);
-  layer_mark_dirty(text_layer_get_layer(s_timer_text_layer));
 }
