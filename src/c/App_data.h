@@ -5,9 +5,10 @@ struct List;
 struct Timer;
 struct Timer_group;
 
-struct App_data* app_data_create();
-
 void app_data_destroy(struct App_data* app_data);
+
+struct App_data* app_data_load();
+void app_data_save(struct App_data* app_data);
 
 struct List* app_data_get_timer_groups(struct App_data* app_data);
 

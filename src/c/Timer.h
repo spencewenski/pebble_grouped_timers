@@ -14,6 +14,9 @@ enum Timer_field {
 struct Timer* timer_create();
 void timer_destroy(struct Timer* timer);
 
+struct Timer* timer_load();
+void timer_save(struct Timer* timer);
+
 void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value);
 int timer_get_field(struct Timer* timer, const enum Timer_field timer_field);
 void timer_increment_field(struct Timer* timer, const enum Timer_field timer_field, int amount);

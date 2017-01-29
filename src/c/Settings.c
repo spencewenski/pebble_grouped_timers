@@ -1,6 +1,7 @@
 #include "Settings.h"
 #include "Utility.h"
 #include "assert.h"
+#include "persist_util.h"
 
 #include <pebble.h>
 
@@ -20,6 +21,17 @@ struct Settings* settings_create() {
 
 void settings_destroy(struct Settings* settings) {
   free(settings);
+}
+
+struct Settings* settings_load() {
+  struct Settings* settings = safe_alloc(sizeof(struct Settings));
+  persist_read_data(g_current_persist_key++, settings, sizeof(struct Settings));
+  return settings;
+}
+
+void settings_save(struct Settings* settings) {
+  assert(settings);
+  persist_write_data(g_current_persist_key++, settings, sizeof(struct Settings));
 }
 
 void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style) {

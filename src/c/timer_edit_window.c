@@ -138,7 +138,6 @@ static void update_timer_text_layer(struct Timer* timer) {
           timer_get_field(timer, TIMER_FIELD_HOURS),
           timer_get_field(timer, TIMER_FIELD_MINUTES),
           timer_get_field(timer, TIMER_FIELD_SECONDS));
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer value - %s", s_timer_text_buffer);
   text_layer_set_text(s_timer_text_layer, s_timer_text_buffer);
   layer_mark_dirty(text_layer_get_layer(s_timer_text_layer));
 }

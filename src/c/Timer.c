@@ -1,6 +1,7 @@
 #include "Timer.h"
 #include "Utility.h"
 #include "assert.h"
+#include "persist_util.h"
 
 #include <pebble.h>
 #include <stdlib.h>
@@ -31,6 +32,17 @@ struct Timer* timer_create() {
 
 void timer_destroy(struct Timer* timer) {
   free(timer);
+}
+
+struct Timer* timer_load() {
+  struct Timer* timer = safe_alloc(sizeof(struct Timer));
+  persist_read_data(g_current_persist_key++, timer, sizeof(struct Timer));
+  return timer;
+}
+
+void timer_save(struct Timer* timer) {
+  assert(timer);
+  persist_write_data(g_current_persist_key++, timer, sizeof(struct Timer));
 }
 
 void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value) {

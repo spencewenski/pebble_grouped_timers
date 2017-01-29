@@ -8,6 +8,9 @@ struct Settings;
 struct Timer_group* timer_group_create();
 void timer_group_destroy(struct Timer_group* timer_group);
 
+struct Timer_group* timer_group_load();
+void timer_group_save(struct Timer_group* timer_group);
+
 // Settings
 struct Settings* timer_group_get_settings(struct Timer_group* timer_group);
 

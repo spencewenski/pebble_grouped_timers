@@ -27,6 +27,19 @@ void timer_group_destroy(struct Timer_group* timer_group) {
   free(timer_group);
 }
 
+struct Timer_group* timer_group_load() {
+  struct Timer_group* timer_group = safe_alloc(sizeof(struct Timer_group));
+  timer_group->timers = list_load((List_load_item_fp_t) timer_load);
+  timer_group->settings = settings_load();
+  return timer_group;
+}
+
+void timer_group_save(struct Timer_group* timer_group) {
+  assert(timer_group);
+  list_save(timer_group->timers, (List_apply_fp_t) timer_save);
+  settings_save(timer_group->settings);
+}
+
 struct Settings* timer_group_get_settings(struct Timer_group* timer_group) {
   assert(timer_group);
 

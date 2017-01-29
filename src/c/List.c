@@ -1,6 +1,7 @@
 #include "List.h"
 #include "Utility.h"
 #include "assert.h"
+#include "persist_util.h"
 
 #include <pebble.h>
 
@@ -97,4 +98,20 @@ void list_apply(const struct List* list, List_apply_fp_t func_ptr) {
   for (int i = 0; i < list->size; ++i) {
     func_ptr(list->array[i]);
   }
+}
+
+struct List* list_load(List_load_item_fp_t func_ptr) {
+  assert(persist_exists(g_current_persist_key));
+  int list_size = persist_read_int(g_current_persist_key++);
+  struct List* list = list_create();
+  for (int i = 0; i < list_size; ++i) {
+    list_add(list, func_ptr());
+  }
+  return list;
+}
+
+void list_save(const struct List* list, List_apply_fp_t func_ptr) {
+  assert(list);
+  persist_write_int(g_current_persist_key++, list->size);
+  list_apply(list, func_ptr);
 }

@@ -35,6 +35,9 @@ enum Vibrate_style {
 struct Settings* settings_create();
 void settings_destroy(struct Settings* settings);
 
+struct Settings* settings_load();
+void settings_save(struct Settings* settings);
+
 void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style);
 enum Repeat_style settings_get_repeat_style(struct Settings* settings);
 
