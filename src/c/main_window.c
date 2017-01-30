@@ -8,11 +8,13 @@
 #include "draw_utility.h"
 #include "Timer_group.h"
 #include "assert.h"
+#include "Timer.h"
 
 #include <pebble.h>
 
 #define MAIN_MENU_NUM_SECTIONS 2
 #define SETTINGS_NUM_ROWS 2
+#define SUBTITLE_TEXT_LENGTH 100
 
 static Window* s_main_window;
 static MenuLayer* s_menu_layer;
@@ -32,6 +34,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 
 // Helpers
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
+static void get_subtitle_text(char* buf, int buf_size, struct Timer_group* timer_group);
 
 void main_window_push(struct App_data* app_data) {
   s_main_window = window_create();
@@ -124,12 +127,12 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
     case 1:
       if (cell_index->row == 0) {
         // New timer group
-        menu_cell_draw_text_row(ctx, cell_layer, "New Group");
+        menu_cell_basic_draw(ctx, cell_layer, "New Group", NULL, NULL);
         return;
       }
       if (cell_index->row == 1) {
         // Settings
-        menu_cell_draw_text_row(ctx, cell_layer, "Settings");
+        menu_cell_basic_draw(ctx, cell_layer, "Settings", NULL, NULL);
         return;
       }    
     default:
@@ -155,17 +158,41 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
   char* timer_text = num_timers == 1 ? "Timer" : "Timers";
   snprintf(menu_text, sizeof(menu_text), "%d %s", num_timers, timer_text);
   
-  menu_cell_draw_text_row(ctx, cell_layer, menu_text);
+  char subtitle_text[SUBTITLE_TEXT_LENGTH];
+  subtitle_text[0] = '\0';
+  get_subtitle_text(subtitle_text, SUBTITLE_TEXT_LENGTH, timer_group);
+  menu_cell_basic_draw(ctx, cell_layer, menu_text,
+    strlen(subtitle_text) > 0 ? subtitle_text : NULL, NULL);
 }
+
+static void get_subtitle_text(char* buf, int buf_size, struct Timer_group* timer_group) {
+  assert(buf);
+  assert(timer_group);
+  int end_index = 0;
+  char timer_text[TIMER_TEXT_LENGTH];
+
+  for (int i = 0; i < timer_group_size(timer_group) && end_index < buf_size; ++i) {
+    struct Timer* timer = timer_group_get_timer(timer_group, i);
+    get_timer_text(timer_text, sizeof(timer_text),
+        timer_get_field(timer, TIMER_FIELD_HOURS),
+        timer_get_field(timer, TIMER_FIELD_MINUTES),
+        timer_get_field(timer, TIMER_FIELD_SECONDS));
+    end_index += snprintf(buf + end_index, buf_size - end_index, timer_text);
+    if (i < timer_group_size(timer_group) - 1) {
+      end_index += snprintf(buf + end_index, buf_size - end_index, ",  ");
+    }
+  }
+}
+
 
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data) {
   switch (section_index) {
     case 0:
-      menu_cell_draw_header(ctx, cell_layer, "Timer groups");
+      menu_cell_basic_header_draw(ctx, cell_layer, "Timer groups");
       return;
     case 1:
       // Settings
-      menu_cell_draw_header(ctx, cell_layer, "Settings");
+      menu_cell_basic_header_draw(ctx, cell_layer, "Settings");
       return;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", section_index);

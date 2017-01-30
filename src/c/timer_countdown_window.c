@@ -6,6 +6,7 @@
 #include "List.h"
 #include "Timer_group.h"
 #include "assert.h"
+#include "draw_utility.h"
 
 #include <pebble.h>
 
@@ -41,7 +42,6 @@ static void vibrate_timer_handler(void* data);
 
 // Helpers
 static void update_current_timer(struct App_data* app_data);
-static void get_timer_text(char* buf, int buf_size, int hours, int minutes, int seconds);
 
 void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
   s_timer_countdown_window = window_create();
@@ -260,13 +260,4 @@ static void update_timer_length_text_layer(struct Timer* timer) {
     timer_get_field(timer, TIMER_FIELD_SECONDS));
   text_layer_set_text(s_timer_length_text_layer, s_timer_length_text_buffer);
   layer_mark_dirty(text_layer_get_layer(s_timer_length_text_layer));
-}
-
-static void get_timer_text(char* buf, int buf_size, int hours, int minutes,
-    int seconds) {
-  if (hours > 0) {
-    snprintf(buf, buf_size, "%.2d:%.2d:%.2d", hours, minutes, seconds);
-  } else {
-    snprintf(buf, buf_size, "%.2d:%.2d", minutes, seconds);
-  }
 }

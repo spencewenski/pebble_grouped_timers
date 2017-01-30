@@ -126,12 +126,12 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
     case 1:
       if (cell_index->row == 0) {
         // New timer
-        menu_cell_draw_text_row(ctx, cell_layer, "New Timer");
+        menu_cell_basic_draw(ctx, cell_layer, "New Timer", NULL, NULL);
         return;
       }
       if (cell_index->row == 1) {
         // Settings
-        menu_cell_draw_text_row(ctx, cell_layer, "Settings");
+        menu_cell_basic_draw(ctx, cell_layer, "Settings", NULL, NULL);
         return;
       }
       return;
@@ -153,28 +153,21 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
   assert(timer);
 
   char menu_text[MENU_TEXT_LENGTH];
-  if (timer_get_field(timer, TIMER_FIELD_HOURS) > 0) {
-    snprintf(menu_text, sizeof(menu_text), "%d:%.2d:%.2d",
-             timer_get_field(timer, TIMER_FIELD_HOURS),
-             timer_get_field(timer, TIMER_FIELD_MINUTES),
-             timer_get_field(timer, TIMER_FIELD_SECONDS));
-  } else {
-    snprintf(menu_text, sizeof(menu_text), "%d:%.2d",
-             timer_get_field(timer, TIMER_FIELD_MINUTES),
-             timer_get_field(timer, TIMER_FIELD_SECONDS));
-  }
-  
-  menu_cell_draw_text_row(ctx, cell_layer, menu_text);
+  get_timer_text(menu_text, sizeof(menu_text),
+        timer_get_field(timer, TIMER_FIELD_HOURS),
+        timer_get_field(timer, TIMER_FIELD_MINUTES),
+        timer_get_field(timer, TIMER_FIELD_SECONDS));
+  menu_cell_basic_draw(ctx, cell_layer, menu_text, NULL, NULL);
 }
 
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data) {
   switch (section_index) {
     case 0:
-      menu_cell_draw_header(ctx, cell_layer, "Timers");
+      menu_cell_basic_header_draw(ctx, cell_layer, "Timers");
       return;
     case 1:
       // Settings
-      menu_cell_draw_header(ctx, cell_layer, "Settings");
+      menu_cell_basic_header_draw(ctx, cell_layer, "Settings");
       return;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", section_index);

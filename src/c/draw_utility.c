@@ -3,33 +3,14 @@
 
 #include <pebble.h>
 
-void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text) {
-  assert(ctx);
-  assert(cell_layer);
-  assert(text);
-
-  GSize size = layer_get_frame(cell_layer).size;
-  graphics_draw_text(ctx,
-                     text,
-                     fonts_get_system_font(FONT_KEY_GOTHIC_14),
-                     GRect(0,0,size.w,size.h),
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
-}
-
-void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text) {
-  assert(ctx);
-  assert(cell_layer);
-  assert(text);
-
-  GRect bounds = layer_get_bounds(cell_layer);
-  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28);
-  graphics_draw_text(ctx,
-                     text,
-                     font,
-                     bounds,
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
+void get_timer_text(char* buf, int buf_size, int hours, int minutes,
+    int seconds) {
+  assert(buf);
+  if (hours > 0) {
+    snprintf(buf, buf_size, "%d:%.2d:%.2d", hours, minutes, seconds);
+  } else if (minutes > 0) {
+    snprintf(buf, buf_size, "%d:%.2d", minutes, seconds);
+  } else {
+    snprintf(buf, buf_size, ":%.2d", seconds);
+  }
 }
