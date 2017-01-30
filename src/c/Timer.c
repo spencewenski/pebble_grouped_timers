@@ -41,7 +41,7 @@ struct Timer* timer_load() {
   return timer;
 }
 
-void timer_save(struct Timer* timer) {
+void timer_save(const struct Timer* timer) {
   assert(timer);
   persist_write_data(g_current_persist_key++, timer, sizeof(struct Timer));
 }
@@ -80,7 +80,7 @@ static int get_max_value(enum Timer_field timer_field) {
   }
 }
 
-int timer_get_field(struct Timer* timer, const enum Timer_field timer_field) {
+int timer_get_field(const struct Timer* timer, const enum Timer_field timer_field) {
   assert(timer);
   switch (timer_field) {
     case TIMER_FIELD_HOURS:
@@ -121,12 +121,12 @@ void timer_set_all(struct Timer* timer, int hours, int minutes, int seconds) {
   timer_set_field(timer, TIMER_FIELD_SECONDS, seconds);
 }
 
-int timer_get_length_seconds(struct Timer* timer) {
+int timer_get_length_seconds(const struct Timer* timer) {
   assert(timer);
   return (timer->hours * SECONDS_PER_HOUR) + (timer->minutes * SECONDS_PER_MINUTE) + timer->seconds;
 }
 
-int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_field) {
+int timer_get_field_remaining(const struct Timer* timer, const enum Timer_field timer_field) {
   assert(timer);
   int remaining_seconds = timer_get_remaining_seconds(timer);
   if (remaining_seconds == timer_get_length_seconds(timer)) {
@@ -146,7 +146,7 @@ int timer_get_field_remaining(struct Timer* timer, const enum Timer_field timer_
   }
 }
 
-int timer_get_remaining_seconds(struct Timer* timer) {
+int timer_get_remaining_seconds(const struct Timer* timer) {
   assert(timer);
   // If the timer isn't started
   if (!timer_is_running(timer) && !timer_is_paused(timer)) {
@@ -167,17 +167,17 @@ void timer_update(struct Timer* timer) {
   timer->start_time_seconds = current_time;
 }
 
-int timer_is_running(struct Timer* timer) {
+int timer_is_running(const struct Timer* timer) {
   assert(timer);
   return timer->start_time_seconds > 0 ? 1 : 0;
 }
 
-int timer_is_paused(struct Timer* timer) {
+int timer_is_paused(const struct Timer* timer) {
   assert(timer);
   return timer->start_time_seconds <= 0 && timer->elapsed_seconds > 0 ? 1 : 0;
 }
 
-int timer_is_elapsed(struct Timer* timer) {
+int timer_is_elapsed(const struct Timer* timer) {
   assert(timer);
   return timer->elapsed_seconds >= timer_get_length_seconds(timer) ? 1 : 0;
 }

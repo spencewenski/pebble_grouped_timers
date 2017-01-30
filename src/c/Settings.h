@@ -37,16 +37,16 @@ struct Settings* settings_create();
 void settings_destroy(struct Settings* settings);
 
 struct Settings* settings_load();
-void settings_save(struct Settings* settings);
+void settings_save(const struct Settings* settings);
 
 void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style);
-enum Repeat_style settings_get_repeat_style(struct Settings* settings);
+enum Repeat_style settings_get_repeat_style(const struct Settings* settings);
 
 void settings_set_progress_style(struct Settings* settings, enum Progress_style progress_style);
-enum Progress_style settings_get_progress_style(struct Settings* settings);
+enum Progress_style settings_get_progress_style(const struct Settings* settings);
 
 void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vibrate_style);
-enum Vibrate_style settings_get_vibrate_style(struct Settings* settings);
+enum Vibrate_style settings_get_vibrate_style(const struct Settings* settings);
 
 const char * settings_get_settings_field_text(enum Settings_field settings_field);
 const char * settings_get_repeat_style_text(enum Repeat_style repeat_style);

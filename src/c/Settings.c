@@ -29,7 +29,7 @@ struct Settings* settings_load() {
   return settings;
 }
 
-void settings_save(struct Settings* settings) {
+void settings_save(const struct Settings* settings) {
   assert(settings);
   persist_write_data(g_current_persist_key++, settings, sizeof(struct Settings));
 }
@@ -39,7 +39,7 @@ void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repe
   settings->repeat_style = repeat_style;
 }
 
-enum Repeat_style settings_get_repeat_style(struct Settings* settings) {
+enum Repeat_style settings_get_repeat_style(const struct Settings* settings) {
   assert(settings);
   return settings->repeat_style;
 }
@@ -49,7 +49,7 @@ void settings_set_progress_style(struct Settings* settings, enum Progress_style 
   settings->progress_style = progress_style;
 }
 
-enum Progress_style settings_get_progress_style(struct Settings* settings) {
+enum Progress_style settings_get_progress_style(const struct Settings* settings) {
   assert(settings);
   return settings->progress_style;
 }
@@ -59,7 +59,7 @@ void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vi
   settings->vibrate_style = vibrate_style;
 }
 
-enum Vibrate_style settings_get_vibrate_style(struct Settings* settings) {
+enum Vibrate_style settings_get_vibrate_style(const struct Settings* settings) {
   assert(settings);
   return settings->vibrate_style;
 }

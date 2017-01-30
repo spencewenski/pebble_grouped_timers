@@ -23,7 +23,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
 // Helpers
-static struct Settings* get_settings(struct App_data* app_data, int timer_group_index);
+static struct Settings* get_settings(const struct App_data* app_data, int timer_group_index);
 static enum Settings_field get_settings_field(int settings_field_index);
 static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style);
 static enum Progress_style get_next_progress_style(enum Progress_style progress_style);
@@ -131,7 +131,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
                      NULL);
 }
 
-static struct Settings* get_settings(struct App_data* app_data, int timer_group_index) {
+static struct Settings* get_settings(const struct App_data* app_data, int timer_group_index) {
   if (s_timer_group_index < 0) {
     return app_data_get_settings(app_data);
   } else {

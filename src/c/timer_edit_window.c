@@ -30,7 +30,7 @@ static void click_handler_down(ClickRecognizerRef recognizer, void* context);
 static void click_handler_back(ClickRecognizerRef recognizer, void* context);
 
 // Timer display
-static void update_timer_text_layer(struct Timer* timer);
+static void update_timer_text_layer(const struct Timer* timer);
 
 // Helpers
 static enum Timer_field get_timer_field(int timer_edit_index);
@@ -133,7 +133,7 @@ static void click_handler_back(ClickRecognizerRef recognizer, void* context) {
   }
 }
 
-static void update_timer_text_layer(struct Timer* timer) {
+static void update_timer_text_layer(const struct Timer* timer) {
   snprintf(s_timer_text_buffer, sizeof(s_timer_text_buffer), "%.2d:%.2d:%.2d",
           timer_get_field(timer, TIMER_FIELD_HOURS),
           timer_get_field(timer, TIMER_FIELD_MINUTES),

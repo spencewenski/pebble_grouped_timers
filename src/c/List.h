@@ -41,7 +41,7 @@ int list_empty(const struct List* list);
 /*
 Get the item at the given index.
 */
-void* list_get(struct List* list, int index);
+void* list_get(const struct List* list, int index);
 
 /*
 Remove the item at the given index.

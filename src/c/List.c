@@ -72,7 +72,7 @@ int list_empty(const struct List* list) {
   return list->size ? 0 : 1;
 }
 
-void* list_get(struct List* list, int index) {
+void* list_get(const struct List* list, int index) {
   assert(list);
   if (!in_range(index, 0, list->size)) {
     APP_LOG(APP_LOG_LEVEL_ERROR, "invalid index");
