@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SETTINGS_H
+#define SETTINGS_H
 
 #define NUM_SETTINGS_FIELDS 3
 
@@ -51,3 +52,5 @@ const char * settings_get_settings_field_text(enum Settings_field settings_field
 const char * settings_get_repeat_style_text(enum Repeat_style repeat_style);
 const char * settings_get_progress_style_text(enum Progress_style progress_style);
 const char * settings_get_vibrate_style_text(enum Vibrate_style vibrate_style);
+
+#endif /*SETTINGS_H*/

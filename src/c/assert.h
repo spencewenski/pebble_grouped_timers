@@ -41,7 +41,8 @@
  * $FreeBSD: src/include/assert.h,v 1.4 2002/03/23 17:24:53 imp Exp $
  */
 
-#pragma once
+#ifndef ASSERT_H
+#define ASSERT_H
 
 #include <pebble.h>
 
@@ -53,3 +54,5 @@
 #define __assert(e, file, line) \
     ((void)APP_LOG(APP_LOG_LEVEL_ERROR, "%s:%u: failed assertion '%s'\n", file, line, e), window_stack_pop_all(false))
 #endif
+
+#endif /*ASSERT_H*/

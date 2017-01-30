@@ -1,4 +1,5 @@
-#pragma once
+#ifndef UTILITY_H
+#define UTILITY_H
 
 void* safe_alloc(int size);
 
@@ -8,3 +9,5 @@ int in_range(int value, int min, int max);
 
 // Wrap the value to be in [min, max)
 int wrap_value(int value, int min, int max);
+
+#endif /*UTILITY_H*/

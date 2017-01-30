@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SETTINGS_WINDOW_H
+#define SETTINGS_WINDOW_H
 
 struct App_data;
 
@@ -8,3 +9,5 @@ Push the settings window. Use the same window for app and timer group settings.
                     settings.
 */
 void settings_window_push(struct App_data* app_data, int timer_group);
+
+#endif /*SETTINGS_WINDOW_H*/

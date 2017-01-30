@@ -1,4 +1,5 @@
-#pragma once
+#ifndef GLOBALS_H
+#define GLOBALS_H
 
 #define INVALID_INDEX -1
 #define MENU_CELL_HEIGHT 40
@@ -8,3 +9,5 @@
 #define TIMER_TEXT_HEIGHT_SM 40
 #define MS_PER_SECOND 1000
 #define MS_PER_MINUTE 60000
+
+#endif /*GLOBALS_H*/

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PERSIST_UTIL_H
+#define PERSIST_UTIL_H
 
 #define PERSIST_VERSION_KEY 0
 #define PERSIST_VERSION 1
@@ -21,3 +22,5 @@ void persist_finish_load();
 Should be called after app data is saved.
 */
 void persist_finish_save();
+
+#endif /*PERSIST_UTIL_H*/

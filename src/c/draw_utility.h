@@ -1,4 +1,5 @@
-#pragma once
+#ifndef DRAW_UTILITY_H
+#define DRAW_UTILITY_H
 
 #include <pebble.h>
 
@@ -6,3 +7,5 @@ void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* t
 void menu_cell_draw_text_row(GContext* ctx, const Layer* cell_layer, const char* text);
 
 void get_timer_text(char* buf, int buf_size, int hours, int minutes, int seconds);
+
+#endif /*DRAW_UTILITY_H*/

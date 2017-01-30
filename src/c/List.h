@@ -1,4 +1,5 @@
-#pragma once
+#ifndef LIST_H
+#define LIST_H
 
 struct List;
 
@@ -74,3 +75,5 @@ Save the list. Items are saved by applying the given function pointer to each
 item in the list in order.
 */
 void list_save(const struct List* list, List_apply_fp_t func_ptr);
+
+#endif /*LIST_H*/

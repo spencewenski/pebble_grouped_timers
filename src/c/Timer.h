@@ -1,4 +1,5 @@
-#pragma once
+#ifndef TIMER_H
+#define TIMER_H
 
 #define NUM_TIMER_FIELDS 3
 
@@ -43,3 +44,5 @@ void timer_pause(struct Timer* timer);
 void timer_reset(struct Timer* timer);
 // Update the timer
 void timer_update(struct Timer* timer);
+
+#endif /*TIMER_H*/

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef APP_DATA_H
+#define APP_DATA_H
 
 struct App_data;
 struct List;
@@ -16,3 +17,5 @@ struct Settings* app_data_get_settings(struct App_data* app_data);
 
 struct Timer_group* app_data_get_timer_group(struct App_data* app_data, int timer_group_index);
 struct Timer* app_data_get_timer(struct App_data* app_data, int timer_group_index, int timer_index);
+
+#endif /*APP_DATA_H*/
