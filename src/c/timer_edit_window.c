@@ -35,7 +35,8 @@ static void update_timer_text_layer(const struct Timer* timer);
 // Helpers
 static enum Timer_field get_timer_field(int timer_edit_index);
 
-void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
+void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
+{
   s_timer_edit_window = window_create();
   
   assert(s_timer_edit_window);
@@ -53,7 +54,8 @@ void timer_edit_window_push(struct App_data* app_data, int timer_group_index, in
   window_stack_push(s_timer_edit_window, false);
 }
 
-static void window_load_handler(Window* window) {
+static void window_load_handler(Window* window)
+{
   Layer* window_layer = window_get_root_layer(window);
   window_set_click_config_provider(window, click_config_provider);
 
@@ -83,7 +85,8 @@ static void window_load_handler(Window* window) {
   update_timer_text_layer(timer);  
 }
 
-static void window_unload_handler(Window* window) {
+static void window_unload_handler(Window* window)
+{
   struct App_data* app_data = window_get_user_data(window);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   if (timer_get_length_seconds(timer) <= 0) {
@@ -98,42 +101,48 @@ static void window_unload_handler(Window* window) {
 }
 
 // Click handlers
-static void click_config_provider(void* context) {
+static void click_config_provider(void* context)
+{
   window_single_repeating_click_subscribe(BUTTON_ID_UP, CLICK_REPEAT_INTERVAL_MS, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
   window_single_repeating_click_subscribe(BUTTON_ID_DOWN, CLICK_REPEAT_INTERVAL_MS, click_handler_down);
   window_single_click_subscribe(BUTTON_ID_BACK, click_handler_back);
 }
 
-static void click_handler_up(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_up(ClickRecognizerRef recognizer, void* context)
+{
   struct App_data* app_data = window_get_user_data(context);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_increment_field(timer, get_timer_field(s_edit_timer_field_num), 1);
   update_timer_text_layer(timer);
 }
 
-static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_select(ClickRecognizerRef recognizer, void* context)
+{
   ++s_edit_timer_field_num;
   if (s_edit_timer_field_num > 2) {
     window_stack_pop(false);
   }
 }
 
-static void click_handler_down(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_down(ClickRecognizerRef recognizer, void* context)
+{
   struct App_data* app_data = window_get_user_data(context);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_increment_field(timer, get_timer_field(s_edit_timer_field_num), -1);
   update_timer_text_layer(timer);
 }
 
-static void click_handler_back(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_back(ClickRecognizerRef recognizer, void* context)
+{
   --s_edit_timer_field_num;
   if (s_edit_timer_field_num < 0) {
     window_stack_pop(false);
   }
 }
 
-static void update_timer_text_layer(const struct Timer* timer) {
+static void update_timer_text_layer(const struct Timer* timer)
+{
   snprintf(s_timer_text_buffer, sizeof(s_timer_text_buffer), "%.2d:%.2d:%.2d",
           timer_get_field(timer, TIMER_FIELD_HOURS),
           timer_get_field(timer, TIMER_FIELD_MINUTES),
@@ -142,7 +151,8 @@ static void update_timer_text_layer(const struct Timer* timer) {
   layer_mark_dirty(text_layer_get_layer(s_timer_text_layer));
 }
 
-static enum Timer_field get_timer_field(int timer_edit_index) {
+static enum Timer_field get_timer_field(int timer_edit_index)
+{
   switch (timer_edit_index) {
     case 0:
       return TIMER_FIELD_HOURS;

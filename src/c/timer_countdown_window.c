@@ -43,7 +43,8 @@ static void vibrate_timer_handler(void* data);
 // Helpers
 static void update_current_timer(struct App_data* app_data);
 
-void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index) {
+void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
+{
   s_timer_countdown_window = window_create();
   
   assert(s_timer_countdown_window);
@@ -61,7 +62,8 @@ void timer_countdown_window_push(struct App_data* app_data, int timer_group_inde
   window_stack_push(s_timer_countdown_window, false);
 }
 
-void window_load_handler(Window* window) {
+void window_load_handler(Window* window)
+{
   Layer* window_layer = window_get_root_layer(window);
   window_set_click_config_provider(window, click_config_provider);
 
@@ -104,7 +106,8 @@ void window_load_handler(Window* window) {
   start_app_timer(0, timer_handler, app_data);
 }
 
-void window_unload_handler(Window* window) {
+void window_unload_handler(Window* window)
+{
   cancel_app_timers();
 
   text_layer_destroy(s_timer_length_text_layer);
@@ -118,19 +121,22 @@ void window_unload_handler(Window* window) {
 }
 
 // Click handlers
-static void click_config_provider(void* context) {
+static void click_config_provider(void* context)
+{
   window_single_click_subscribe(BUTTON_ID_UP, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
 }
 
-static void click_handler_up(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_up(ClickRecognizerRef recognizer, void* context)
+{
   struct App_data* app_data = window_get_user_data(context);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_reset(timer);
   update_timer_countdown_text_layer(timer);
 }
 
-static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
+static void click_handler_select(ClickRecognizerRef recognizer, void* context)
+{
   struct App_data* app_data = window_get_user_data(context);
   struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
@@ -159,11 +165,13 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context) {
   }
 }
 
-static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data) {
+static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data)
+{
   s_app_timer_handle = app_timer_register(delay, app_timer_callback, data);
 }
 
-static void cancel_app_timers() {
+static void cancel_app_timers()
+{
   if (s_app_timer_handle) {
     app_timer_cancel(s_app_timer_handle);
     s_app_timer_handle = NULL;
@@ -174,7 +182,8 @@ static void cancel_app_timers() {
   }
 }
 
-static void timer_handler(void* data) {
+static void timer_handler(void* data)
+{
   s_app_timer_handle = NULL;
   struct App_data* app_data = data;
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
@@ -200,7 +209,8 @@ static void timer_handler(void* data) {
   start_app_timer(MS_PER_SECOND, timer_handler, app_data);
 }
 
-static void vibrate_timer_handler(void* data) {
+static void vibrate_timer_handler(void* data)
+{
   s_app_timer_vibrate_handle = NULL;
   vibes_double_pulse();
   struct App_data* app_data = data;
@@ -211,7 +221,8 @@ static void vibrate_timer_handler(void* data) {
   s_app_timer_vibrate_handle = app_timer_register(MS_PER_MINUTE, vibrate_timer_handler, data);
 }
 
-static void update_current_timer(struct App_data* app_data) {
+static void update_current_timer(struct App_data* app_data)
+{
   struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
   if (timer_group_size(timer_group) <= 0) {
     return;
@@ -242,7 +253,8 @@ static void update_current_timer(struct App_data* app_data) {
   
 }
 
-static void update_timer_countdown_text_layer(struct Timer* timer) {
+static void update_timer_countdown_text_layer(struct Timer* timer)
+{
   timer_update(timer);
   get_timer_text(s_timer_countdown_text_buffer, sizeof(s_timer_countdown_text_buffer),
     timer_get_field_remaining(timer, TIMER_FIELD_HOURS),
@@ -253,7 +265,8 @@ static void update_timer_countdown_text_layer(struct Timer* timer) {
   layer_mark_dirty(text_layer_get_layer(s_timer_countdown_text_layer));
 }
 
-static void update_timer_length_text_layer(struct Timer* timer) {
+static void update_timer_length_text_layer(struct Timer* timer)
+{
   get_timer_text(s_timer_length_text_buffer, sizeof(s_timer_length_text_buffer),
     timer_get_field(timer, TIMER_FIELD_HOURS),
     timer_get_field(timer, TIMER_FIELD_MINUTES),

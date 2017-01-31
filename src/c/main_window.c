@@ -36,7 +36,8 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
 
-void main_window_push(struct App_data* app_data) {
+void main_window_push(struct App_data* app_data)
+{
   s_main_window = window_create();
   
   assert(s_main_window);
@@ -54,7 +55,8 @@ void main_window_push(struct App_data* app_data) {
 /*
 WindowHandlers
 */
-static void window_load_handler(Window* window) {
+static void window_load_handler(Window* window)
+{
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
@@ -77,7 +79,8 @@ static void window_load_handler(Window* window) {
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
 
-static void window_unload_handler(Window* window) {
+static void window_unload_handler(Window* window)
+{
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
   
@@ -88,11 +91,13 @@ static void window_unload_handler(Window* window) {
 /*
 MenuLayerCallbacks
 */
-static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data) {
+static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data)
+{
   return MAIN_MENU_NUM_SECTIONS;
 }
 
-static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
+static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
+{
   assert(menu_layer);
   assert(data);
 
@@ -111,15 +116,18 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   }
 }
 
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
+static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
   return MENU_CELL_HEIGHT;
 }
 
-static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
+static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
+{
   return MENU_CELL_BASIC_HEADER_HEIGHT;
 }
 
-static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data) {
+static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data)
+{
   switch (cell_index->section) {
     case 0:
       menu_cell_draw_timer_group_row(ctx, cell_layer, cell_index->row, data);
@@ -141,7 +149,8 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
   }
 }
 
-static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data) {
+static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data)
+{
   assert(ctx);
   assert(cell_layer);
   assert(data);
@@ -165,7 +174,8 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
     strlen(subtitle_text) > 0 ? subtitle_text : NULL, NULL);
 }
 
-static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group) {
+static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group)
+{
   assert(buf);
   assert(timer_group);
   int end_index = 0;
@@ -185,7 +195,8 @@ static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group*
 }
 
 
-static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data) {
+static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data)
+{
   switch (section_index) {
     case 0:
       menu_cell_basic_header_draw(ctx, cell_layer, "Timer groups");
@@ -200,7 +211,8 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
   }
 }
 
-static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
+static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
   struct App_data* app_data = data;
   
   switch (cell_index->section) {

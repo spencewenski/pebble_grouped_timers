@@ -11,7 +11,8 @@ struct Settings {
   enum Vibrate_style vibrate_style;   /* (Only if wait for user) Continuous or nudge every minute. */
 };
 
-struct Settings* settings_create() {
+struct Settings* settings_create()
+{
   struct Settings* settings = safe_alloc(sizeof(struct Settings));
   settings->repeat_style = REPEAT_STYLE_NONE;
   settings->progress_style = PROGRESS_STYLE_NONE;
@@ -19,52 +20,62 @@ struct Settings* settings_create() {
   return settings;
 }
 
-void settings_destroy(struct Settings* settings) {
+void settings_destroy(struct Settings* settings)
+{
   free(settings);
 }
 
-struct Settings* settings_load() {
+struct Settings* settings_load()
+{
   struct Settings* settings = safe_alloc(sizeof(struct Settings));
   persist_read_data(g_current_persist_key++, settings, sizeof(struct Settings));
   return settings;
 }
 
-void settings_save(const struct Settings* settings) {
+void settings_save(const struct Settings* settings)
+{
   assert(settings);
   persist_write_data(g_current_persist_key++, settings, sizeof(struct Settings));
 }
 
-void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style) {
+void settings_set_repeat_style(struct Settings* settings, enum Repeat_style repeat_style)
+{
   assert(settings);
   settings->repeat_style = repeat_style;
 }
 
-enum Repeat_style settings_get_repeat_style(const struct Settings* settings) {
+enum Repeat_style settings_get_repeat_style(const struct Settings* settings)
+{
   assert(settings);
   return settings->repeat_style;
 }
 
-void settings_set_progress_style(struct Settings* settings, enum Progress_style progress_style) {
+void settings_set_progress_style(struct Settings* settings, enum Progress_style progress_style)
+{
   assert(settings);
   settings->progress_style = progress_style;
 }
 
-enum Progress_style settings_get_progress_style(const struct Settings* settings) {
+enum Progress_style settings_get_progress_style(const struct Settings* settings)
+{
   assert(settings);
   return settings->progress_style;
 }
 
-void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vibrate_style) {
+void settings_set_vibrate_style(struct Settings* settings, enum Vibrate_style vibrate_style)
+{
   assert(settings);
   settings->vibrate_style = vibrate_style;
 }
 
-enum Vibrate_style settings_get_vibrate_style(const struct Settings* settings) {
+enum Vibrate_style settings_get_vibrate_style(const struct Settings* settings)
+{
   assert(settings);
   return settings->vibrate_style;
 }
 
-const char * settings_get_settings_field_text(enum Settings_field settings_field) {
+const char * settings_get_settings_field_text(enum Settings_field settings_field)
+{
   switch (settings_field) {
     case SETTINGS_FIELD_REPEAT_STYLE:
       return "Repeat Style";
@@ -78,7 +89,8 @@ const char * settings_get_settings_field_text(enum Settings_field settings_field
   }
 }
 
-const char * settings_get_repeat_style_text(enum Repeat_style repeat_style) {
+const char * settings_get_repeat_style_text(enum Repeat_style repeat_style)
+{
   switch (repeat_style) {
     case REPEAT_STYLE_NONE:
       return "Repeat none";
@@ -92,7 +104,8 @@ const char * settings_get_repeat_style_text(enum Repeat_style repeat_style) {
   }
 }
 
-const char * settings_get_progress_style_text(enum Progress_style progress_style) {
+const char * settings_get_progress_style_text(enum Progress_style progress_style)
+{
   switch (progress_style) {
     case PROGRESS_STYLE_NONE:
       return "Don't start next";
@@ -106,7 +119,8 @@ const char * settings_get_progress_style_text(enum Progress_style progress_style
   }
 }
 
-const char * settings_get_vibrate_style_text(enum Vibrate_style vibrate_style) {
+const char * settings_get_vibrate_style_text(enum Vibrate_style vibrate_style)
+{
   switch (vibrate_style) {
     case VIBRATE_STYLE_NONE:
       return "Don't vibrate";

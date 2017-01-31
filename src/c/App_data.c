@@ -17,14 +17,16 @@ struct App_data {
   struct Settings* settings;
 };
 
-static struct App_data* app_data_create() {
+static struct App_data* app_data_create()
+{
 	struct App_data* app_data = safe_alloc(sizeof(struct App_data));
   app_data->timer_groups = list_create();
   app_data->settings = settings_create();
   return app_data;
 }
 
-void app_data_destroy(struct App_data* app_data) {
+void app_data_destroy(struct App_data* app_data)
+{
   assert(app_data);
   list_apply(app_data->timer_groups, (List_apply_fp_t)timer_group_destroy);
   list_destroy(app_data->timer_groups);
@@ -34,7 +36,8 @@ void app_data_destroy(struct App_data* app_data) {
   free(app_data);
 }
 
-struct App_data* app_data_load() {
+struct App_data* app_data_load()
+{
   persist_init_load();
   if (!persist_exists(PERSIST_VERSION_KEY)) {
     APP_LOG(APP_LOG_LEVEL_INFO, "No data saved, creating new data with default values");
@@ -54,7 +57,8 @@ struct App_data* app_data_load() {
   return app_data;
 }
 
-void app_data_save(const struct App_data* app_data) {
+void app_data_save(const struct App_data* app_data)
+{
   assert(app_data);
   persist_init_save();
   list_save(app_data->timer_groups, (List_apply_fp_t) timer_group_save);
@@ -62,22 +66,26 @@ void app_data_save(const struct App_data* app_data) {
   persist_finish_save();
 }
 
-struct List* app_data_get_timer_groups(const struct App_data* app_data) {
+struct List* app_data_get_timer_groups(const struct App_data* app_data)
+{
   assert(app_data);
   return app_data->timer_groups;
 }
 
-struct Settings* app_data_get_settings(const struct App_data* app_data) {
+struct Settings* app_data_get_settings(const struct App_data* app_data)
+{
   assert(app_data);
   return app_data->settings;
 }
 
-struct Timer_group* app_data_get_timer_group(const struct App_data* app_data, int timer_group_index) {
+struct Timer_group* app_data_get_timer_group(const struct App_data* app_data, int timer_group_index)
+{
   assert(app_data);
   return list_get(app_data->timer_groups, timer_group_index);
 }
 
-struct Timer* app_data_get_timer(const struct App_data* app_data, int timer_group_index, int timer_index) { 
+struct Timer* app_data_get_timer(const struct App_data* app_data, int timer_group_index, int timer_index)
+{ 
   assert(app_data);
   struct Timer_group* timer_group = app_data_get_timer_group(app_data, timer_group_index);
   assert(timer_group);

@@ -14,19 +14,22 @@ static void deinit();
 
 static void init_fake_data(struct App_data* app_data);
 
-int main() {
+int main()
+{
   struct App_data* app_data = app_data_load();
   init(app_data);
   app_event_loop();
   deinit(app_data);
 }
 
-static void init(struct App_data* app_data) {
+static void init(struct App_data* app_data)
+{
   // init_fake_data(app_data);
   main_window_push(app_data);
 }
 
-static void init_fake_data(struct App_data* app_data) {
+static void init_fake_data(struct App_data* app_data)
+{
   struct List* timer_groups = app_data_get_timer_groups(app_data);
 
   // Timer group 1
@@ -101,10 +104,10 @@ static void init_fake_data(struct App_data* app_data) {
   settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
   settings_set_progress_style(settings, PROGRESS_STYLE_WAIT_FOR_USER);
   settings_set_vibrate_style(settings, VIBRATE_STYLE_CONTINUOUS);
-
 }
 
-static void deinit(struct App_data* app_data) {
+static void deinit(struct App_data* app_data)
+{
   app_data_save(app_data);
   app_data_destroy(app_data);
   // persist_delete(PERSIST_VERSION_KEY);

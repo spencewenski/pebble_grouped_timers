@@ -29,7 +29,8 @@ static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style);
 static enum Progress_style get_next_progress_style(enum Progress_style progress_style);
 static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_style);
 
-void settings_window_push(struct App_data* app_data, int timer_group) {
+void settings_window_push(struct App_data* app_data, int timer_group)
+{
   s_settings_window = window_create();
   
   assert(s_settings_window);
@@ -47,7 +48,8 @@ void settings_window_push(struct App_data* app_data, int timer_group) {
 }
 
 // WindowHandlers
-static void window_load_handler(Window* window) {
+static void window_load_handler(Window* window)
+{
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
   s_menu_layer = menu_layer_create(bounds);
@@ -68,7 +70,8 @@ static void window_load_handler(Window* window) {
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
 
-static void window_unload_handler(Window* window) {
+static void window_unload_handler(Window* window)
+{
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
   
@@ -77,19 +80,23 @@ static void window_unload_handler(Window* window) {
 }
 
 // MenuLayerCallbacks
-static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data) {
+static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data)
+{
   return 1;
 }
 
-static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data) {
+static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
+{
   return NUM_SETTINGS_FIELDS;
 }
 
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
+static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
   return MENU_CELL_HEIGHT;
 }
 
-static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data) {
+static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data)
+{
   struct App_data* app_data = data;
   struct Settings* settings = get_settings(app_data, s_timer_group_index);
   
@@ -131,7 +138,8 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
                      NULL);
 }
 
-static struct Settings* get_settings(const struct App_data* app_data, int timer_group_index) {
+static struct Settings* get_settings(const struct App_data* app_data, int timer_group_index)
+{
   if (s_timer_group_index < 0) {
     return app_data_get_settings(app_data);
   } else {
@@ -139,7 +147,8 @@ static struct Settings* get_settings(const struct App_data* app_data, int timer_
   }
 }
 
-static enum Settings_field get_settings_field(int settings_field_index) {
+static enum Settings_field get_settings_field(int settings_field_index)
+{
   switch (settings_field_index) {
     case 0:
       return SETTINGS_FIELD_REPEAT_STYLE;
@@ -152,7 +161,8 @@ static enum Settings_field get_settings_field(int settings_field_index) {
   }
 }
 
-static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data) {
+static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
   struct App_data* app_data = data;
   struct Settings* settings = get_settings(app_data, s_timer_group_index);
   enum Settings_field settings_field = get_settings_field(cell_index->row);
@@ -175,7 +185,8 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
   menu_layer_reload_data(s_menu_layer);
 }
 
-static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style) {
+static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style)
+{
   switch (repeat_style) {
     case REPEAT_STYLE_NONE:
       return REPEAT_STYLE_SINGLE;
@@ -190,7 +201,8 @@ static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style) {
   }
 }
 
-static enum Progress_style get_next_progress_style(enum Progress_style progress_style) {
+static enum Progress_style get_next_progress_style(enum Progress_style progress_style)
+{
   switch (progress_style) {
     case PROGRESS_STYLE_NONE:
       return PROGRESS_STYLE_AUTO;
@@ -205,7 +217,8 @@ static enum Progress_style get_next_progress_style(enum Progress_style progress_
   }
 }
 
-static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_style) {
+static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_style)
+{
   switch (vibrate_style) {
     case VIBRATE_STYLE_NONE:
       return VIBRATE_STYLE_NUDGE;
