@@ -4,6 +4,7 @@
 #include "App_data.h"
 #include "assert.h"
 #include "Timer_group.h"
+#include "draw_utility.h"
 
 #include <pebble.h>
 
@@ -92,7 +93,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
 
 static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  return MENU_CELL_HEIGHT;
+  return menu_cell_get_height(menu_layer, cell_index);
 }
 
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data)
@@ -105,14 +106,6 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
   GFont small_font = fonts_get_system_font(FONT_KEY_GOTHIC_14);
   enum Settings_field settings_field = get_settings_field(cell_index->row);
 
-  graphics_draw_text(ctx,
-                     settings_get_settings_field_text(settings_field),
-                     big_font,
-                     GRect(0, 0, size.w, size.h / 2),
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
-  
   const char* small_text;
   switch (settings_field) {
     case SETTINGS_FIELD_REPEAT_STYLE:
@@ -129,13 +122,9 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
       small_text = "";
       break;
   }
-  graphics_draw_text(ctx,
-                     small_text,
-                     small_font,
-                     GRect(0, size.h / 2, size.w, size.h / 2),
-                     GTextOverflowModeTrailingEllipsis,
-                     PBL_IF_ROUND_ELSE(GTextAlignmentCenter, GTextAlignmentLeft),
-                     NULL);
+
+  menu_cell_basic_draw(ctx, cell_layer,
+    settings_get_settings_field_text(settings_field), small_text, NULL);
 }
 
 static struct Settings* get_settings(const struct App_data* app_data, int timer_group_index)
