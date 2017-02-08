@@ -118,7 +118,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
 
 static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  return MENU_CELL_HEIGHT;
+  return menu_cell_get_height(menu_layer, cell_index);
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
@@ -174,11 +174,11 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 {
   switch (section_index) {
     case 0:
-      menu_cell_basic_header_draw(ctx, cell_layer, "Timers");
+      menu_cell_draw_header(ctx, cell_layer, "Timers");
       return;
     case 1:
       // Settings
-      menu_cell_basic_header_draw(ctx, cell_layer, "Settings");
+      menu_cell_draw_header(ctx, cell_layer, "Settings");
       return;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", section_index);

@@ -35,7 +35,6 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 // Helpers
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
-static int16_t get_cell_height_round(MenuLayer* menu_layer, MenuIndex* cell_index);
 
 void main_window_push(struct App_data* app_data)
 {
@@ -119,16 +118,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
 
 static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  return PBL_IF_ROUND_ELSE(get_cell_height_round(menu_layer, cell_index), MENU_CELL_HEIGHT);
-}
-
-static int16_t get_cell_height_round(MenuLayer* menu_layer, MenuIndex* cell_index)
-{
-  if (cell_index->section == menu_layer_get_selected_index(menu_layer).section &&
-      cell_index->row == menu_layer_get_selected_index(menu_layer).row) {
-    return MENU_CELL_HEIGHT_ROUND;
-  }
-  return MENU_CELL_HEIGHT;
+  return menu_cell_get_height(menu_layer, cell_index);
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
