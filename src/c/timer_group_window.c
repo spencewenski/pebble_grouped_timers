@@ -19,6 +19,7 @@
 static Window* s_timer_group_window;
 static MenuLayer* s_menu_layer;
 static int s_timer_group_index;
+static StatusBarLayer* s_status_bar_layer;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -60,7 +61,14 @@ void timer_group_window_push(struct App_data* app_data, int timer_group)
 static void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
+
+  // Status bar layer
+  s_status_bar_layer = status_bar_create();
+  layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
+
+  // Timer group window
   GRect bounds = layer_get_bounds(window_layer);
+  bounds = status_bar_adjust_window_bounds(bounds);
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
   struct App_data* app_data = window_get_user_data(window);
@@ -90,6 +98,9 @@ static void window_unload_handler(Window* window)
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
   
+  status_bar_layer_destroy(s_status_bar_layer);
+  s_status_bar_layer = NULL;
+
   window_destroy(s_timer_group_window);  
   s_timer_group_window = NULL;
 }

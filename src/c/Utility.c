@@ -25,3 +25,13 @@ int wrap_value(int value, int min, int max)
   }
   return value % max;
 }
+
+int min(int a, int b)
+{
+  return a < b ? a : b;
+}
+
+int max(int a, int b)
+{
+  return a > b ? a : b;
+}

@@ -5,6 +5,7 @@
 #include "List.h"
 #include "Timer_group.h"
 #include "assert.h"
+#include "draw_utility.h"
 
 #include <pebble.h>
 
@@ -15,6 +16,7 @@ static TextLayer* s_timer_text_layer;
 static int s_edit_timer_field_num;
 static int s_timer_group_index;
 static int s_timer_index;
+static StatusBarLayer* s_status_bar_layer;
 
 static char s_timer_text_buffer[TIMER_TEXT_LENGTH];
 
@@ -58,14 +60,18 @@ static void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
   window_set_click_config_provider(window, click_config_provider);
-
-  GRect window_bounds = layer_get_bounds(window_layer);
   
   // Setup other static variables
   s_edit_timer_field_num = 0;
   s_timer_text_buffer[0] = '\0';
   
+  // Status bar layer
+  s_status_bar_layer = status_bar_create();
+  layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
+  
   // Setup timer text layer
+  GRect window_bounds = layer_get_bounds(window_layer);
+  window_bounds = status_bar_adjust_window_bounds(window_bounds);
   GRect timer_bounds = window_bounds;
   timer_bounds.size.h = TIMER_TEXT_HEIGHT;
   grect_align(&timer_bounds, &window_bounds, GAlignLeft, false);
@@ -93,6 +99,9 @@ static void window_unload_handler(Window* window)
     timer_group_remove_timer(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
   }
   
+  status_bar_layer_destroy(s_status_bar_layer);
+  s_status_bar_layer = NULL;
+
   text_layer_destroy(s_timer_text_layer);
   s_timer_text_layer = NULL;
 

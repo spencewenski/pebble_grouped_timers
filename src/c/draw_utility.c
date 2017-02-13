@@ -57,3 +57,16 @@ void get_timer_text(char* buf, int buf_size, int hours, int minutes,
     snprintf(buf, buf_size, ":%.2d", seconds);
   }
 }
+
+StatusBarLayer* status_bar_create()
+{
+  StatusBarLayer* status_bar_layer = status_bar_layer_create();
+  return status_bar_layer;
+}
+
+GRect status_bar_adjust_window_bounds(GRect bounds)
+{
+  bounds.origin.y += STATUS_BAR_LAYER_HEIGHT;
+  bounds.size.h -= STATUS_BAR_LAYER_HEIGHT;
+  return bounds;
+}

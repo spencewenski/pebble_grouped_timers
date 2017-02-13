@@ -17,6 +17,7 @@ static int s_timer_group_index;
 static int s_timer_index;
 static AppTimer* s_app_timer_handle;
 static AppTimer* s_app_timer_vibrate_handle;
+static StatusBarLayer* s_status_bar_layer;
 
 static char s_timer_countdown_text_buffer[TIMER_TEXT_LENGTH];
 static char s_timer_length_text_buffer[TIMER_TEXT_LENGTH];
@@ -65,18 +66,23 @@ void timer_countdown_window_push(struct App_data* app_data, int timer_group_inde
 void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
+
   window_set_click_config_provider(window, click_config_provider);
 
-  GRect window_bounds = layer_get_bounds(window_layer);
-  
   // Setup other static variables
   s_timer_countdown_text_buffer[0] = '\0';
   s_timer_length_text_buffer[0] = '\0';
 
   struct App_data* app_data = window_get_user_data(window);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+
+  // Status bar layer
+  s_status_bar_layer = status_bar_create();
+  layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
   
-  // Setup timer countdown layer
+  // Countdown layer
+  GRect window_bounds = layer_get_bounds(window_layer);
+  window_bounds = status_bar_adjust_window_bounds(window_bounds);
   GRect timer_bounds = window_bounds;
   timer_bounds.size.h = TIMER_TEXT_HEIGHT;
   grect_align(&timer_bounds, &window_bounds, GAlignLeft, false);
@@ -116,6 +122,9 @@ void window_unload_handler(Window* window)
   text_layer_destroy(s_timer_countdown_text_layer);
   s_timer_countdown_text_layer = NULL;
   
+  status_bar_layer_destroy(s_status_bar_layer);
+  s_status_bar_layer = NULL;
+
   window_destroy(s_timer_countdown_window);
   s_timer_countdown_window = NULL;
 }

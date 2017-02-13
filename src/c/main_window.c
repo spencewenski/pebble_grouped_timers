@@ -18,6 +18,7 @@
 
 static Window* s_main_window;
 static MenuLayer* s_menu_layer;
+static StatusBarLayer* s_status_bar_layer;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
@@ -35,6 +36,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 // Helpers
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
+// static void create_status_bar()
 
 void main_window_push(struct App_data* app_data)
 {
@@ -58,7 +60,14 @@ WindowHandlers
 static void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
+
+  // Status bar layer
+  s_status_bar_layer = status_bar_create();
+  layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
+
+  // Menu layer
   GRect bounds = layer_get_bounds(window_layer);
+  bounds = status_bar_adjust_window_bounds(bounds);
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
 
@@ -83,7 +92,10 @@ static void window_unload_handler(Window* window)
 {
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
-  
+
+  status_bar_layer_destroy(s_status_bar_layer);
+  s_status_bar_layer = NULL;
+
   window_destroy(s_main_window);
   s_main_window = NULL;
 }
