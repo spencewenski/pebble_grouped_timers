@@ -11,8 +11,44 @@
         "resources": {
             "media": [
                 {
-                    "file": "images/action_bar_icon_up",
+                    "file": "images/action_bar_icon_check.png",
+                    "name": "ACTION_BAR_ICON_CHECK",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/action_bar_icon_delete.png",
+                    "name": "ACTION_BAR_ICON_DELETE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/action_bar_icon_down.png",
+                    "name": "ACTION_BAR_ICON_DOWN",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/action_bar_icon_edit.png",
+                    "name": "ACTION_BAR_ICON_EDIT",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/action_bar_icon_up.png",
                     "name": "ACTION_BAR_ICON_UP",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/music_icon_pause.png",
+                    "name": "MUSIC_ICON_PAUSE",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/music_icon_play.png",
+                    "name": "MUSIC_ICON_PLAY",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 }
