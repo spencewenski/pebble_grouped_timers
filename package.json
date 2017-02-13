@@ -2,14 +2,21 @@
     "author": "spencewenski",
     "dependencies": {},
     "keywords": [],
-    "name": "grouped timers",
+    "name": "grouped-timers",
     "pebble": {
         "displayName": "Grouped timers",
         "enableMultiJS": true,
         "messageKeys": [],
         "projectType": "native",
         "resources": {
-            "media": []
+            "media": [
+                {
+                    "file": "images/action_bar_icon_up",
+                    "name": "ACTION_BAR_ICON_UP",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                }
+            ]
         },
         "sdkVersion": "3",
         "targetPlatforms": [
