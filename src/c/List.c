@@ -98,9 +98,9 @@ void list_remove(struct List* list, int index)
     return;
   }
   for (int i = index; i < list->size - 1; ++i) {
-    list->array[index] = list->array[i + 1];
+    list->array[i] = list->array[i + 1];
   }
-  list->array[list->size--] = NULL;
+  list->array[--list->size] = NULL;
 }
 
 void list_apply(const struct List* list, List_apply_fp_t func_ptr)

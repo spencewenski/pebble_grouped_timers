@@ -14,7 +14,7 @@
 #include <pebble.h>
 
 #define MENU_NUM_SECTIONS 2
-#define SETTINGS_NUM_ROWS 2
+#define SETTINGS_NUM_ROWS 3
 
 static Window* s_timer_group_window;
 static MenuLayer* s_menu_layer;
@@ -41,19 +41,19 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
 void timer_group_window_push(struct App_data* app_data, int timer_group)
 {
   s_timer_group_window = window_create();
-  
+
   assert(s_timer_group_window);
-  
+
   s_timer_group_index = timer_group;
-    
+
   window_set_user_data(s_timer_group_window, app_data);
-  
+
   window_set_window_handlers(s_timer_group_window, (WindowHandlers) {
     .load = window_load_handler,
     .appear = window_appear_handler,
     .unload = window_unload_handler
   });
-  
+
   window_stack_push(s_timer_group_window, false);
 }
 
@@ -72,7 +72,7 @@ static void window_load_handler(Window* window)
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
   struct App_data* app_data = window_get_user_data(window);
-  
+
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
@@ -82,9 +82,9 @@ static void window_load_handler(Window* window)
     .draw_row = menu_draw_row_callback,
     .select_click = menu_select_click_callback
   });
-  
+
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
-  
+
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
 
@@ -95,13 +95,14 @@ static void window_appear_handler(Window* window)
 
 static void window_unload_handler(Window* window)
 {
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Unload");
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
-  
+
   status_bar_layer_destroy(s_status_bar_layer);
   s_status_bar_layer = NULL;
 
-  window_destroy(s_timer_group_window);  
+  window_destroy(s_timer_group_window);
   s_timer_group_window = NULL;
 }
 
@@ -154,6 +155,11 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
         menu_cell_basic_draw(ctx, cell_layer, "Settings", NULL, NULL);
         return;
       }
+      if (cell_index->row == 2) {
+        // Settings
+        menu_cell_basic_draw(ctx, cell_layer, "Delete Group", NULL, NULL);
+        return;
+      }
       return;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
@@ -166,7 +172,7 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
   assert(ctx);
   assert(cell_layer);
   assert(data);
-  
+
   struct App_data* app_data = data;
   struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
   assert(timer_group);
@@ -200,7 +206,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
   struct App_data* app_data = data;
-  
+
   switch (cell_index->section) {
     case 0:
       // Edit/create timer
@@ -214,6 +220,14 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       } else if (cell_index->row == 1) {
         // Settings
         settings_window_push(app_data, s_timer_group_index);
+      } else if (cell_index->row == 2) {
+        // Delete group
+        struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
+        list_remove(app_data_get_timer_groups(app_data), s_timer_group_index);
+        timer_group_destroy(timer_group);
+        timer_group = NULL;
+        window_stack_pop(false);
+        return;
       }
       break;
     default:

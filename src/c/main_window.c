@@ -22,6 +22,7 @@ static StatusBarLayer* s_status_bar_layer;
 
 // WindowHandlers
 static void window_load_handler(Window* window);
+static void window_appear_handler(Window* window);
 static void window_unload_handler(Window* window);
 
 // MenuLayerCallbacks
@@ -41,16 +42,17 @@ static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group*
 void main_window_push(struct App_data* app_data)
 {
   s_main_window = window_create();
-  
+
   assert(s_main_window);
 
   window_set_user_data(s_main_window, app_data);
-  
+
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load_handler,
+    .appear = window_appear_handler,
     .unload = window_unload_handler
   });
-  
+
   window_stack_push(s_main_window, false);
 }
 
@@ -72,7 +74,7 @@ static void window_load_handler(Window* window)
   assert(s_menu_layer);
 
   struct App_data* app_data = window_get_user_data(window);
-  
+
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
@@ -82,10 +84,15 @@ static void window_load_handler(Window* window)
     .draw_row = menu_draw_row_callback,
     .select_click = menu_select_click_callback
   });
-  
+
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
-  
+
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
+}
+
+static void window_appear_handler(Window* window)
+{
+  menu_layer_reload_data(s_menu_layer);
 }
 
 static void window_unload_handler(Window* window)
@@ -114,7 +121,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   assert(data);
 
   struct App_data* app_data = data;
-  
+
   switch (section_index) {
     case 0:
       // Timer groups
@@ -154,7 +161,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
         // Settings
         menu_cell_basic_draw(ctx, cell_layer, "Settings", NULL, NULL);
         return;
-      }    
+      }
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
       return;
@@ -170,7 +177,7 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
   struct App_data* app_data = data;
   struct List* timer_groups = app_data_get_timer_groups(app_data);
   assert(in_range(row_index, 0, list_size(timer_groups)));
-  
+
   struct Timer_group* timer_group = list_get(timer_groups, row_index);
   assert(timer_group);
 
@@ -178,7 +185,7 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
   int num_timers = timer_group_size(timer_group);
   char* timer_text = num_timers == 1 ? "Timer" : "Timers";
   snprintf(menu_text, sizeof(menu_text), "%d %s", num_timers, timer_text);
-  
+
   char subtitle_text[SUBTITLE_TEXT_LENGTH];
   subtitle_text[0] = '\0';
   get_subtitle_text(subtitle_text, SUBTITLE_TEXT_LENGTH, timer_group);
@@ -226,7 +233,7 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
   struct App_data* app_data = data;
-  
+
   switch (cell_index->section) {
     case 0:
       // Timer group
