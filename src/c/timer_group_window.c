@@ -34,6 +34,7 @@ static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t s
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data);
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data);
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
+static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
 // Helpers
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
@@ -80,7 +81,8 @@ static void window_load_handler(Window* window)
     .get_header_height = menu_get_header_height_callback,
     .draw_header = menu_draw_header_callback,
     .draw_row = menu_draw_row_callback,
-    .select_click = menu_select_click_callback
+    .select_click = menu_select_click_callback,
+    .select_long_click = menu_select_long_click_callback
   });
 
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
@@ -235,7 +237,26 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       return;
   }
   // Refresh window
+  // Todo: determine if these lines are necessary
   layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
   menu_layer_reload_data(s_menu_layer);
 }
 
+static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
+  struct App_data* app_data = data;
+
+  switch (cell_index->section) {
+    case 0:
+      // Edit timer
+      timer_edit_window_push(app_data, s_timer_group_index, cell_index->row);
+      break;
+    default:
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Only support long click on timers");
+      return;
+  }
+  // Refresh window
+  // Todo: determine if these lines are necessary
+  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
+  menu_layer_reload_data(s_menu_layer);
+}
