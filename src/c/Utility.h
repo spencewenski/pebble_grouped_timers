@@ -18,9 +18,4 @@ int min(int a, int b);
 // Get the maximum value
 int max(int a, int b);
 
-// Exit the app
-void exit_app();
-void click_handler_exit_app(ClickRecognizerRef recognizer, void* context);
-void menu_click_handler_exit_app(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
-
 #endif /*UTILITY_H*/

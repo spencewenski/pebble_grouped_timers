@@ -135,7 +135,6 @@ static void click_config_provider(void* context)
 {
   window_single_click_subscribe(BUTTON_ID_UP, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
-  window_multi_click_subscribe(BUTTON_ID_BACK, 2, 0, 0, true, click_handler_exit_app);
 }
 
 static void click_handler_up(ClickRecognizerRef recognizer, void* context)
