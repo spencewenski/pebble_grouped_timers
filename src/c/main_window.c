@@ -3,6 +3,7 @@
 #include "List.h"
 #include "Utility.h"
 #include "timer_group_window.h"
+#include "timer_countdown_window.h"
 #include "settings_window.h"
 #include "globals.h"
 #include "draw_utility.h"
@@ -33,11 +34,11 @@ static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t s
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data);
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data);
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
+static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
 // Helpers
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
-// static void create_status_bar()
 
 void main_window_push(struct App_data* app_data)
 {
@@ -82,13 +83,16 @@ static void window_load_handler(Window* window)
     .get_header_height = menu_get_header_height_callback,
     .draw_header = menu_draw_header_callback,
     .draw_row = menu_draw_row_callback,
-    .select_click = menu_select_click_callback
+    .select_click = menu_select_click_callback,
+    .select_long_click = menu_select_long_click_callback
   });
 
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
 
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
+
+
 
 static void window_appear_handler(Window* window)
 {
@@ -256,6 +260,30 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       return;
   }
   // Refresh window
+  layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
+  menu_layer_reload_data(s_menu_layer);
+}
+
+static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
+  struct App_data* app_data = data;
+
+  switch (cell_index->section) {
+    case 0:
+      // Start first timer in group
+      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data))));
+      if (timer_group_size(app_data_get_timer_group(app_data, cell_index->row)) <= 0) {
+        break;
+      }
+      timer_start(app_data_get_timer(app_data, cell_index->row, 0));
+      timer_countdown_window_push(app_data, cell_index->row, 0);
+      break;
+    default:
+      APP_LOG(APP_LOG_LEVEL_DEBUG, "Only support long click on timer groups");
+      return;
+  }
+  // Refresh window
+  // Todo: determine if these lines are necessary
   layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
   menu_layer_reload_data(s_menu_layer);
 }

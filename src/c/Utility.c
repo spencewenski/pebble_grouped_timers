@@ -35,3 +35,18 @@ int max(int a, int b)
 {
   return a > b ? a : b;
 }
+
+void exit_app()
+{
+  window_stack_pop_all(false);
+}
+
+void click_handler_exit_app(ClickRecognizerRef recognizer, void* context)
+{
+  exit_app();
+}
+
+void menu_click_handler_exit_app(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
+{
+  exit_app();
+}

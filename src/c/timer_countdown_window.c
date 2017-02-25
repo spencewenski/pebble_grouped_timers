@@ -7,6 +7,7 @@
 #include "Timer_group.h"
 #include "assert.h"
 #include "draw_utility.h"
+#include "Utility.h"
 
 #include <pebble.h>
 
@@ -47,19 +48,19 @@ static void update_current_timer(struct App_data* app_data);
 void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
 {
   s_timer_countdown_window = window_create();
-  
+
   assert(s_timer_countdown_window);
-  
+
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;
-  
+
   window_set_user_data(s_timer_countdown_window, app_data);
-  
+
   window_set_window_handlers(s_timer_countdown_window, (WindowHandlers) {
     .load = window_load_handler,
     .unload = window_unload_handler
   });
-  
+
   window_stack_push(s_timer_countdown_window, false);
 }
 
@@ -79,7 +80,7 @@ void window_load_handler(Window* window)
   // Status bar layer
   s_status_bar_layer = status_bar_create();
   layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
-  
+
   // Countdown layer
   GRect window_bounds = layer_get_bounds(window_layer);
   window_bounds = status_bar_adjust_window_bounds(window_bounds);
@@ -121,7 +122,7 @@ void window_unload_handler(Window* window)
 
   text_layer_destroy(s_timer_countdown_text_layer);
   s_timer_countdown_text_layer = NULL;
-  
+
   status_bar_layer_destroy(s_status_bar_layer);
   s_status_bar_layer = NULL;
 
@@ -134,6 +135,7 @@ static void click_config_provider(void* context)
 {
   window_single_click_subscribe(BUTTON_ID_UP, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
+  window_multi_click_subscribe(BUTTON_ID_BACK, 2, 0, 0, true, click_handler_exit_app);
 }
 
 static void click_handler_up(ClickRecognizerRef recognizer, void* context)
@@ -141,6 +143,7 @@ static void click_handler_up(ClickRecognizerRef recognizer, void* context)
   struct App_data* app_data = window_get_user_data(context);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_reset(timer);
+  cancel_app_timers();
   update_timer_countdown_text_layer(timer);
 }
 
@@ -227,7 +230,7 @@ static void vibrate_timer_handler(void* data)
   if (!timer_is_running(timer) || !timer_is_elapsed(timer)) {
     return;
   }
-  s_app_timer_vibrate_handle = app_timer_register(MS_PER_MINUTE, vibrate_timer_handler, data);
+  s_app_timer_vibrate_handle = app_timer_register(NUDGE_INTERVAL_MS, vibrate_timer_handler, data);
 }
 
 static void update_current_timer(struct App_data* app_data)
@@ -259,7 +262,7 @@ static void update_current_timer(struct App_data* app_data)
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid repeat style: %d", repeat_style);
       return;
   }
-  
+
 }
 
 static void update_timer_countdown_text_layer(struct Timer* timer)

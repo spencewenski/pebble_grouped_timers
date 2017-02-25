@@ -40,19 +40,19 @@ static enum Timer_field get_timer_field(int timer_edit_index);
 void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
 {
   s_timer_edit_window = window_create();
-  
+
   assert(s_timer_edit_window);
-  
+
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;
-  
+
   window_set_user_data(s_timer_edit_window, app_data);
-  
+
   window_set_window_handlers(s_timer_edit_window, (WindowHandlers) {
     .load = window_load_handler,
     .unload = window_unload_handler
   });
-  
+
   window_stack_push(s_timer_edit_window, false);
 }
 
@@ -60,15 +60,15 @@ static void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
   window_set_click_config_provider(window, click_config_provider);
-  
+
   // Setup other static variables
   s_edit_timer_field_num = 0;
   s_timer_text_buffer[0] = '\0';
-  
+
   // Status bar layer
   s_status_bar_layer = status_bar_create();
   layer_add_child(window_layer, status_bar_layer_get_layer(s_status_bar_layer));
-  
+
   // Setup timer text layer
   GRect window_bounds = layer_get_bounds(window_layer);
   window_bounds = status_bar_adjust_window_bounds(window_bounds);
@@ -88,7 +88,7 @@ static void window_load_handler(Window* window)
   // Set the timer text
   struct App_data* app_data = window_get_user_data(window);
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
-  update_timer_text_layer(timer);  
+  update_timer_text_layer(timer);
 }
 
 static void window_unload_handler(Window* window)
@@ -98,7 +98,7 @@ static void window_unload_handler(Window* window)
   if (timer_get_length_seconds(timer) <= 0) {
     timer_group_remove_timer(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
   }
-  
+
   status_bar_layer_destroy(s_status_bar_layer);
   s_status_bar_layer = NULL;
 
@@ -106,7 +106,7 @@ static void window_unload_handler(Window* window)
   s_timer_text_layer = NULL;
 
   window_destroy(s_timer_edit_window);
-  s_timer_edit_window = NULL;  
+  s_timer_edit_window = NULL;
 }
 
 // Click handlers
