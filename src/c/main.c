@@ -16,6 +16,7 @@ static void init_fake_data(struct App_data* app_data);
 
 int main()
 {
+  // persist_delete(PERSIST_VERSION_KEY);
   struct App_data* app_data = app_data_load();
   init(app_data);
   app_event_loop();

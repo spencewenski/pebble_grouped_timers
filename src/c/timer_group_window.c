@@ -29,7 +29,6 @@ static void window_unload_handler(Window* window);
 // MenuLayerCallbacks
 static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data);
 static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data);
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data);
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data);
 static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, uint16_t section_index, void* data);
@@ -77,7 +76,7 @@ static void window_load_handler(Window* window)
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
-    .get_cell_height = menu_get_cell_height_callback,
+    .get_cell_height = PBL_IF_ROUND_ELSE(menu_cell_get_height_round, NULL),
     .get_header_height = menu_get_header_height_callback,
     .draw_header = menu_draw_header_callback,
     .draw_row = menu_draw_row_callback,
@@ -128,11 +127,6 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
       return 0;
   }
   return 0;
-}
-
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
-{
-  return menu_cell_get_height(menu_layer, cell_index);
 }
 
 static int16_t menu_get_header_height_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)

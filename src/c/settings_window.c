@@ -20,7 +20,6 @@ static void window_unload_handler(Window* window);
 // MenuLayerCallbacks
 static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data);
 static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data);
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data);
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data);
 
@@ -34,18 +33,18 @@ static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_styl
 void settings_window_push(struct App_data* app_data, int timer_group)
 {
   s_settings_window = window_create();
-  
+
   assert(s_settings_window);
 
   s_timer_group_index = timer_group;
-  
+
   window_set_user_data(s_settings_window, app_data);
-  
+
   window_set_window_handlers(s_settings_window, (WindowHandlers) {
     .load = window_load_handler,
     .unload = window_unload_handler
   });
-  
+
   window_stack_push(s_settings_window, false);
 }
 
@@ -65,17 +64,17 @@ static void window_load_handler(Window* window)
   assert(s_menu_layer);
 
   struct App_data* app_data = window_get_user_data(window);
-  
+
   menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
-    .get_cell_height = menu_get_cell_height_callback,
+    .get_cell_height = PBL_IF_ROUND_ELSE(menu_cell_get_height_round, NULL),
     .draw_row = menu_draw_row_callback,
     .select_click = menu_select_click_callback
   });
-  
+
   menu_layer_set_click_config_onto_window(s_menu_layer, window);
-  
+
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
 
@@ -83,7 +82,7 @@ static void window_unload_handler(Window* window)
 {
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
-  
+
   status_bar_layer_destroy(s_status_bar_layer);
   s_status_bar_layer = NULL;
 
@@ -102,16 +101,11 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
   return NUM_SETTINGS_FIELDS;
 }
 
-static int16_t menu_get_cell_height_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
-{
-  return menu_cell_get_height(menu_layer, cell_index);
-}
-
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data)
 {
   struct App_data* app_data = data;
   struct Settings* settings = get_settings(app_data, s_timer_group_index);
-  
+
   enum Settings_field settings_field = get_settings_field(cell_index->row);
 
   const char* small_text;
@@ -163,7 +157,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
   struct App_data* app_data = data;
   struct Settings* settings = get_settings(app_data, s_timer_group_index);
   enum Settings_field settings_field = get_settings_field(cell_index->row);
-  
+
   switch (settings_field) {
     case SETTINGS_FIELD_REPEAT_STYLE:
       settings_set_repeat_style(settings, get_next_repeat_style(settings_get_repeat_style(settings)));
