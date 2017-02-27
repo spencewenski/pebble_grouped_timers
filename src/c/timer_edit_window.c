@@ -97,6 +97,8 @@ static void window_unload_handler(Window* window)
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   if (timer_get_length_seconds(timer) <= 0) {
     timer_group_remove_timer(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
+    timer_destroy(timer);
+    timer = NULL;
   }
 
   status_bar_layer_destroy(s_status_bar_layer);

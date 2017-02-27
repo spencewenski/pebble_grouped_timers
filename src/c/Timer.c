@@ -15,6 +15,7 @@
 static int get_max_value(enum Timer_field timer_field);
 
 struct Timer {
+  int id;
   int hours;
   int minutes;
   int seconds;
@@ -22,12 +23,14 @@ struct Timer {
   int elapsed_seconds;    // How much of the timer has elapsed
 };
 
-struct Timer* timer_create() {
+struct Timer* timer_create(int timer_id) {
   struct Timer* timer = safe_alloc(sizeof(struct Timer));
+  timer->id = timer_id;
   timer->hours = DEFAULT_VALUE;
   timer->minutes = DEFAULT_VALUE;
   timer->seconds = DEFAULT_VALUE;
   timer_reset(timer);
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer created with id: %d", timer_id);
   return timer;
 }
 
@@ -47,6 +50,12 @@ void timer_save(const struct Timer* timer)
 {
   assert(timer);
   persist_write_data(g_current_persist_key++, timer, sizeof(struct Timer));
+}
+
+int timer_get_id(const struct Timer* timer)
+{
+  assert(timer);
+  return timer->id;
 }
 
 void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value)

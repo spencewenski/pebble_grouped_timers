@@ -1,4 +1,5 @@
 #include "timer_countdown_window.h"
+#include "timer_edit_window.h"
 #include "globals.h"
 #include "App_data.h"
 #include "Timer.h"
@@ -24,8 +25,9 @@ static char s_timer_countdown_text_buffer[TIMER_TEXT_LENGTH];
 static char s_timer_length_text_buffer[TIMER_TEXT_LENGTH];
 
 // Window Handlers
-void window_load_handler(Window* window);
-void window_unload_handler(Window* window);
+static void window_load_handler(Window* window);
+static void window_appear_handler(Window* window);
+static void window_unload_handler(Window* window);
 
 // Timer display
 static void update_timer_countdown_text_layer(struct Timer* timer);
@@ -35,6 +37,7 @@ static void update_timer_length_text_layer(struct Timer* timer);
 static void click_config_provider(void* context);
 static void click_handler_up(ClickRecognizerRef recognizer, void* context);
 static void click_handler_select(ClickRecognizerRef recognizer, void* context);
+static void click_handler_down(ClickRecognizerRef recognizer, void* context);
 
 // Timer handler
 static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data);
@@ -58,13 +61,14 @@ void timer_countdown_window_push(struct App_data* app_data, int timer_group_inde
 
   window_set_window_handlers(s_timer_countdown_window, (WindowHandlers) {
     .load = window_load_handler,
+    .appear = window_appear_handler,
     .unload = window_unload_handler
   });
 
   window_stack_push(s_timer_countdown_window, false);
 }
 
-void window_load_handler(Window* window)
+static void window_load_handler(Window* window)
 {
   Layer* window_layer = window_get_root_layer(window);
 
@@ -108,12 +112,22 @@ void window_load_handler(Window* window)
   text_layer_set_font(s_timer_length_text_layer, fonts_get_system_font(FONT_KEY_LECO_20_BOLD_NUMBERS));
   layer_add_child(window_layer, text_layer_get_layer(s_timer_length_text_layer));
   update_timer_length_text_layer(timer);
+}
 
-  // Start the timer
+static void window_appear_handler(Window* window)
+{
+  struct App_data* app_data = window_get_user_data(window);
+  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  if (!timer) {
+    window_stack_pop(false);
+    return;
+  }
+  update_timer_countdown_text_layer(timer);
+  update_timer_length_text_layer(timer);
   start_app_timer(0, timer_handler, app_data);
 }
 
-void window_unload_handler(Window* window)
+static void window_unload_handler(Window* window)
 {
   cancel_app_timers();
 
@@ -135,6 +149,7 @@ static void click_config_provider(void* context)
 {
   window_single_click_subscribe(BUTTON_ID_UP, click_handler_up);
   window_single_click_subscribe(BUTTON_ID_SELECT, click_handler_select);
+  window_single_click_subscribe(BUTTON_ID_DOWN, click_handler_down);
 }
 
 static void click_handler_up(ClickRecognizerRef recognizer, void* context)
@@ -174,6 +189,15 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
     update_timer_length_text_layer(timer);
     start_app_timer(0, timer_handler, app_data);
   }
+}
+
+static void click_handler_down(ClickRecognizerRef recognizer, void* context)
+{
+  struct App_data* app_data = window_get_user_data(context);
+  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  timer_reset(timer);
+  cancel_app_timers();
+  timer_edit_window_push(app_data, s_timer_group_index, s_timer_index);
 }
 
 static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data)
@@ -271,7 +295,6 @@ static void update_timer_countdown_text_layer(struct Timer* timer)
     timer_get_field_remaining(timer, TIMER_FIELD_HOURS),
     timer_get_field_remaining(timer, TIMER_FIELD_MINUTES),
     timer_get_field_remaining(timer, TIMER_FIELD_SECONDS));
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Timer value - %s", s_timer_countdown_text_buffer);
   text_layer_set_text(s_timer_countdown_text_layer, s_timer_countdown_text_buffer);
   layer_mark_dirty(text_layer_get_layer(s_timer_countdown_text_layer));
 }

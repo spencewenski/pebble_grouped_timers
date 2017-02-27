@@ -85,6 +85,21 @@ int timer_group_size(const struct Timer_group* timer_group)
 struct Timer* timer_group_get_timer(const struct Timer_group* timer_group, int index)
 {
   assert(timer_group);
-
+  if (!in_range(index, 0, list_size(timer_group->timers))) {
+    return NULL;
+  }
   return list_get(timer_group->timers, index);
+}
+
+struct Timer* timer_group_get_timer_by_id(const struct Timer_group* timer_group, int timer_id)
+{
+  assert(timer_group);
+  assert(timer_id >= 0);
+  for (int i = 0; i < list_size(timer_group->timers); ++i) {
+    struct Timer* timer = list_get(timer_group->timers, i);
+    if (timer_get_id(timer) == timer_id) {
+      return timer;
+    }
+  }
+  return NULL;
 }

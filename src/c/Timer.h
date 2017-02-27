@@ -12,11 +12,14 @@ enum Timer_field {
   TIMER_FIELD_INVALID
 };
 
-struct Timer* timer_create();
+// Timer id should be retrieved from app_data_get_next_timer_id
+struct Timer* timer_create(int timer_id);
 void timer_destroy(struct Timer* timer);
 
 struct Timer* timer_load();
 void timer_save(const struct Timer* timer);
+
+int timer_get_id(const struct Timer* timer);
 
 void timer_set_field(struct Timer* timer, const enum Timer_field timer_field, int value);
 int timer_get_field(const struct Timer* timer, const enum Timer_field timer_field);

@@ -96,7 +96,6 @@ static void window_appear_handler(Window* window)
 
 static void window_unload_handler(Window* window)
 {
-  APP_LOG(APP_LOG_LEVEL_DEBUG, "Unload");
   menu_layer_destroy(s_menu_layer);
   s_menu_layer = NULL;
 
@@ -211,7 +210,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
     case 1:
       if (cell_index->row == 0) {
         // Edit/create timer
-        timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create());
+        timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create(app_data_get_next_timer_id(app_data)));
         timer_edit_window_push(app_data, s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
       } else if (cell_index->row == 1) {
         // Settings
