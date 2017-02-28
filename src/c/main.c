@@ -35,7 +35,7 @@ static void init_fake_data(struct App_data* app_data)
   // Timer group 1
   struct Timer_group* timer_group = timer_group_create();
   list_add(timer_groups, timer_group);
-  
+
   struct Timer* timer = timer_create();
   timer_set_all(timer, 0, 15, 0);
   timer_group_add_timer(timer_group, timer);
@@ -65,11 +65,11 @@ static void init_fake_data(struct App_data* app_data)
   // Timer group 3
   timer_group = timer_group_create();
   list_add(timer_groups, timer_group);
-  
+
   timer = timer_create();
   timer_set_all(timer, 0, 0, 5);
   timer_group_add_timer(timer_group, timer);
-  
+
   timer = timer_create();
   timer_set_all(timer, 0, 0, 8);
   timer_group_add_timer(timer_group, timer);
@@ -82,11 +82,11 @@ static void init_fake_data(struct App_data* app_data)
   // Timer group 4
   timer_group = timer_group_create();
   list_add(timer_groups, timer_group);
-  
+
   timer = timer_create();
   timer_set_all(timer, 0, 0, 10);
   timer_group_add_timer(timer_group, timer);
-  
+
   settings = timer_group_get_settings(timer_group);
   settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
   settings_set_progress_style(settings, PROGRESS_STYLE_WAIT_FOR_USER);
@@ -95,7 +95,7 @@ static void init_fake_data(struct App_data* app_data)
   // Timer group 4
   timer_group = timer_group_create();
   list_add(timer_groups, timer_group);
-  
+
   timer = timer_create();
   timer_set_all(timer, 0, 0, 12);
   timer_group_add_timer(timer_group, timer);

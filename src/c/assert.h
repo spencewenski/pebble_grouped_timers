@@ -46,13 +46,15 @@
 
 #include <pebble.h>
 
-#ifdef NDEBUG
-#define assert(e) ((void)0)
-#else
 #define assert(e)  \
     ((void) ((e) ? ((void)0) : __assert (#e, __FILE__, __LINE__)))
+#ifdef NDEBUG
+// Just print an error message
 #define __assert(e, file, line) \
-    ((void)APP_LOG(APP_LOG_LEVEL_ERROR, "%s:%u: failed assertion '%s'\n", file, line, e), window_stack_pop_all(false))
+    ((void)APP_LOG(APP_LOG_LEVEL_ERROR, "%s:%u: failed assertion - continuing: '%s'\n", file, line, e))
+#else
+#define __assert(e, file, line) \
+    ((void)APP_LOG(APP_LOG_LEVEL_ERROR, "%s:%u: failed assertion - exiting: '%s'\n", file, line, e), window_stack_pop_all(false))
 #endif
 
 #endif /*ASSERT_H*/
