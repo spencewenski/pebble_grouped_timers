@@ -15,4 +15,4 @@ release: CFLAGS += -D NDEBUG
 release: opt
 
 $(PROG):
-	pebble build configure
+	pebble build
