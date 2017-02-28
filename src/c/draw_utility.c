@@ -4,7 +4,9 @@
 
 #include <pebble.h>
 
+#ifdef PBL_ROUND
 static void menu_cell_draw_header_centered(GContext* ctx, const Layer* cell_layer, const char* text);
+#endif
 
 void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* text)
 {
@@ -18,6 +20,7 @@ void menu_cell_draw_header(GContext* ctx, const Layer* cell_layer, const char* t
     );
 }
 
+#ifdef PBL_ROUND
 static void menu_cell_draw_header_centered(GContext* ctx, const Layer* cell_layer, const char* text)
 {
   GSize size = layer_get_frame(cell_layer).size;
@@ -29,7 +32,9 @@ static void menu_cell_draw_header_centered(GContext* ctx, const Layer* cell_laye
                      GTextAlignmentCenter,
                      NULL);
 }
+#endif
 
+#ifdef PBL_ROUND
 int16_t menu_cell_get_height_round(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
   if (cell_index->section == menu_layer_get_selected_index(menu_layer).section &&
@@ -38,6 +43,7 @@ int16_t menu_cell_get_height_round(MenuLayer* menu_layer, MenuIndex* cell_index,
   }
   return MENU_CELL_ROUND_UNFOCUSED_SHORT_CELL_HEIGHT;
 }
+#endif
 
 void get_timer_text(char* buf, int buf_size, int hours, int minutes,
   int seconds)
