@@ -103,7 +103,7 @@ void list_remove(struct List* list, int index)
   list->array[--list->size] = NULL;
 }
 
-void list_apply(const struct List* list, List_apply_fp_t func_ptr)
+void list_for_each(const struct List* list, List_for_each_fp_t func_ptr)
 {
   assert(list);
   for (int i = 0; i < list->size; ++i) {
@@ -122,9 +122,9 @@ struct List* list_load(List_load_item_fp_t func_ptr)
   return list;
 }
 
-void list_save(const struct List* list, List_apply_fp_t func_ptr)
+void list_save(const struct List* list, List_for_each_fp_t func_ptr)
 {
   assert(list);
   persist_write_int(g_current_persist_key++, list->size);
-  list_apply(list, func_ptr);
+  list_for_each(list, func_ptr);
 }

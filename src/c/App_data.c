@@ -28,7 +28,7 @@ static struct App_data* app_data_create()
 void app_data_destroy(struct App_data* app_data)
 {
   assert(app_data);
-  list_apply(app_data->timer_groups, (List_apply_fp_t)timer_group_destroy);
+  list_for_each(app_data->timer_groups, (List_for_each_fp_t)timer_group_destroy);
   list_destroy(app_data->timer_groups);
   app_data->timer_groups = NULL;
   settings_destroy(app_data->settings);
@@ -61,7 +61,7 @@ void app_data_save(const struct App_data* app_data)
 {
   assert(app_data);
   persist_init_save();
-  list_save(app_data->timer_groups, (List_apply_fp_t) timer_group_save);
+  list_save(app_data->timer_groups, (List_for_each_fp_t) timer_group_save);
   settings_save(app_data->settings);
   persist_finish_save();
 }

@@ -23,7 +23,7 @@ struct Timer_group* timer_group_create()
 void timer_group_destroy(struct Timer_group* timer_group)
 {
   assert(timer_group);
-  list_apply(timer_group->timers, (List_apply_fp_t)timer_destroy);
+  list_for_each(timer_group->timers, (List_for_each_fp_t)timer_destroy);
   list_destroy(timer_group->timers);
   settings_destroy(timer_group->settings);
   free(timer_group);
@@ -40,7 +40,7 @@ struct Timer_group* timer_group_load()
 void timer_group_save(const struct Timer_group* timer_group)
 {
   assert(timer_group);
-  list_save(timer_group->timers, (List_apply_fp_t) timer_save);
+  list_save(timer_group->timers, (List_for_each_fp_t) timer_save);
   settings_save(timer_group->settings);
 }
 
