@@ -23,5 +23,9 @@ int timer_group_size(const struct Timer_group* timer_group);
 struct Timer* timer_group_get_timer(const struct Timer_group* timer_group, int index);
 // Return the timer with the given ID. Return NULL if no timer in this group has the given ID.
 struct Timer* timer_group_get_timer_by_id(const struct Timer_group* timer_group, int timer_id);
+// Return the index of the timer with the given ID. Return negative if no timer
+// has the given ID.
+int timer_group_get_timer_index(const struct Timer_group* timer_group, int timer_id);
+
 
 #endif /*TIMER_GROUP_H*/

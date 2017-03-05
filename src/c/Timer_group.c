@@ -95,11 +95,19 @@ struct Timer* timer_group_get_timer_by_id(const struct Timer_group* timer_group,
 {
   assert(timer_group);
   assert(timer_id >= 0);
+  int index = timer_group_get_timer_index(timer_group, timer_id);
+  return index >= 0 ? list_get(timer_group->timers, index) : NULL;
+}
+
+int timer_group_get_timer_index(const struct Timer_group* timer_group, int timer_id)
+{
+  assert(timer_group);
+  assert(timer_id >= 0);
   for (int i = 0; i < list_size(timer_group->timers); ++i) {
     struct Timer* timer = list_get(timer_group->timers, i);
     if (timer_get_id(timer) == timer_id) {
-      return timer;
+      return i;
     }
   }
-  return NULL;
+  return -1;
 }

@@ -9,6 +9,7 @@
 #include "assert.h"
 #include "draw_utility.h"
 #include "Utility.h"
+#include "Wakeup_manager.h"
 
 #include <pebble.h>
 
@@ -47,6 +48,13 @@ static void vibrate_timer_handler(void* data);
 
 // Helpers
 static void update_current_timer(struct App_data* app_data);
+
+void timer_countdown_window_push_id(int timer_id)
+{
+  int timer_group_index = app_data_get_timer_group_index_by_timer_id(app_data_get(), timer_id);
+  int timer_index = timer_group_get_timer_index(app_data_get_timer_group(app_data_get(), timer_group_index), timer_id);
+  timer_countdown_window_push(timer_group_index, timer_index);
+}
 
 void timer_countdown_window_push(int timer_group_index, int timer_index)
 {
@@ -153,6 +161,7 @@ static void click_handler_up(ClickRecognizerRef recognizer, void* context)
 {
   struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_reset(timer);
+  wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
   cancel_app_timers();
   update_timer_countdown_text_layer(timer);
 }
@@ -167,9 +176,11 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
     if (settings_get_progress_style(settings) == PROGRESS_STYLE_WAIT_FOR_USER) {
       cancel_app_timers();
       timer_reset(timer);
+      wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
       update_current_timer(app_data);
       timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
       timer_start(timer);
+      wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
       update_timer_length_text_layer(timer);
       start_app_timer(0, timer_handler, app_data);
       return;
@@ -179,9 +190,11 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
   }
   if (timer_is_running(timer)) {
     timer_pause(timer);
+    wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
     cancel_app_timers();
   } else {
     timer_start(timer);
+    wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
     update_timer_length_text_layer(timer);
     start_app_timer(0, timer_handler, app_data);
   }
@@ -191,6 +204,7 @@ static void click_handler_down(ClickRecognizerRef recognizer, void* context)
 {
   struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_reset(timer);
+  wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
   cancel_app_timers();
   timer_edit_window_push(s_timer_group_index, s_timer_index);
 }
@@ -228,9 +242,11 @@ static void timer_handler(void* data)
   if (timer_is_elapsed(timer) && settings_get_progress_style(settings) == PROGRESS_STYLE_AUTO) {
     cancel_app_timers();
     timer_reset(timer);
+    wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
     update_current_timer(app_data);
     timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
     timer_start(timer);
+    wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
     update_timer_length_text_layer(timer);
     update_timer_countdown_text_layer(timer);
   } else if (timer_is_elapsed(timer)) {

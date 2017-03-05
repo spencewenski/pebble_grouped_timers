@@ -1,5 +1,7 @@
 #include "main_window.h"
 #include "App_data.h"
+#include "Wakeup_manager.h"
+#include "persist_util.h"
 
 #include <pebble.h>
 
@@ -16,6 +18,7 @@ int main()
 
 static void init()
 {
+  wakeup_manager_handle_wakeup(app_data_get_wakeup_manager(app_data_get()));
   main_window_push();
 }
 
