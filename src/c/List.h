@@ -50,6 +50,12 @@ Caller is responsible for deleting pointed-to data first.
 void list_remove(struct List* list, int index);
 
 /*
+Remove the given data pointer from the list.
+Caller is responsible for deleting pointed-to data first.
+*/
+void list_remove(struct List* list, void* data_ptr);
+
+/*
 Type of function used by apply.
 An apply function takes a data pointer as an argument, and returns void.
 */

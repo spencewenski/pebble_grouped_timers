@@ -103,6 +103,13 @@ void list_remove(struct List* list, int index)
   list->array[--list->size] = NULL;
 }
 
+void list_remove(struct List* list, void* data_ptr)
+{
+  assert(list);
+  assert(data_ptr >= list->array);
+  list_remove(list, data_ptr - list->array);
+}
+
 void list_for_each(const struct List* list, List_for_each_fp_t func_ptr)
 {
   assert(list);
