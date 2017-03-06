@@ -32,7 +32,7 @@ https://github.com/spencewenski/pebble_grouped_timers
 6. Open the compilation window by clicking the "Compilation" tab in the sidebar.
 7. Click "Run Build" to build the project.
 8. Select the "Phone" tab of the "Compilation" window.
-9. Turn on the developer connection in you phone's Pebble app.
+9. Turn on the developer connection in your phone's Pebble app.
 10. Click "Install and Run".
 
 ### Pebble SDK
@@ -59,7 +59,7 @@ term "SDK", you can also install the app using the SDK.
 
     ```bash
     # Install on an emulator
-    pebble install --emulator
+    pebble install --emulator emery
     # Install on your watch
     pebble install --phone 1.2.3.4
     ```
