@@ -48,7 +48,7 @@ static void vibrate_timer_handler(void* data);
 // Helpers
 static void update_current_timer(struct App_data* app_data);
 
-void timer_countdown_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
+void timer_countdown_window_push(int timer_group_index, int timer_index)
 {
   s_timer_countdown_window = window_create();
 
@@ -56,8 +56,6 @@ void timer_countdown_window_push(struct App_data* app_data, int timer_group_inde
 
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;
-
-  window_set_user_data(s_timer_countdown_window, app_data);
 
   window_set_window_handlers(s_timer_countdown_window, (WindowHandlers) {
     .load = window_load_handler,
@@ -78,8 +76,7 @@ static void window_load_handler(Window* window)
   s_timer_countdown_text_buffer[0] = '\0';
   s_timer_length_text_buffer[0] = '\0';
 
-  struct App_data* app_data = window_get_user_data(window);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
 
   // Status bar layer
   s_status_bar_layer = status_bar_create();
@@ -116,7 +113,7 @@ static void window_load_handler(Window* window)
 
 static void window_appear_handler(Window* window)
 {
-  struct App_data* app_data = window_get_user_data(window);
+  struct App_data* app_data = app_data_get();
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   if (!timer) {
     window_stack_pop(false);
@@ -154,8 +151,7 @@ static void click_config_provider(void* context)
 
 static void click_handler_up(ClickRecognizerRef recognizer, void* context)
 {
-  struct App_data* app_data = window_get_user_data(context);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_reset(timer);
   cancel_app_timers();
   update_timer_countdown_text_layer(timer);
@@ -163,7 +159,7 @@ static void click_handler_up(ClickRecognizerRef recognizer, void* context)
 
 static void click_handler_select(ClickRecognizerRef recognizer, void* context)
 {
-  struct App_data* app_data = window_get_user_data(context);
+  struct App_data* app_data = app_data_get();
   struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_update(timer);
@@ -193,11 +189,10 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
 
 static void click_handler_down(ClickRecognizerRef recognizer, void* context)
 {
-  struct App_data* app_data = window_get_user_data(context);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_reset(timer);
   cancel_app_timers();
-  timer_edit_window_push(app_data, s_timer_group_index, s_timer_index);
+  timer_edit_window_push(s_timer_group_index, s_timer_index);
 }
 
 static void start_app_timer(int delay, AppTimerCallback app_timer_callback, void* data)
@@ -220,7 +215,7 @@ static void cancel_app_timers()
 static void timer_handler(void* data)
 {
   s_app_timer_handle = NULL;
-  struct App_data* app_data = data;
+  struct App_data* app_data = app_data_get();
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   update_timer_countdown_text_layer(timer);
   if (!timer_is_running(timer)) {
@@ -248,8 +243,7 @@ static void vibrate_timer_handler(void* data)
 {
   s_app_timer_vibrate_handle = NULL;
   vibes_double_pulse();
-  struct App_data* app_data = data;
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   if (!timer_is_running(timer) || !timer_is_elapsed(timer)) {
     return;
   }

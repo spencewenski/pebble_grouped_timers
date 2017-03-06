@@ -38,15 +38,13 @@ static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* ce
 // Helpers
 static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 
-void timer_group_window_push(struct App_data* app_data, int timer_group)
+void timer_group_window_push(int timer_group)
 {
   s_timer_group_window = window_create();
 
   assert(s_timer_group_window);
 
   s_timer_group_index = timer_group;
-
-  window_set_user_data(s_timer_group_window, app_data);
 
   window_set_window_handlers(s_timer_group_window, (WindowHandlers) {
     .load = window_load_handler,
@@ -71,9 +69,8 @@ static void window_load_handler(Window* window)
   bounds = status_bar_adjust_window_bounds(bounds);
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
-  struct App_data* app_data = window_get_user_data(window);
 
-  menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
+  menu_layer_set_callbacks(s_menu_layer, app_data_get(), (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = PBL_IF_ROUND_ELSE(menu_cell_get_height_round, NULL),
@@ -113,11 +110,10 @@ static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data
 
 static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
 {
-  struct App_data* app_data = data;
   switch (section_index) {
     case 0:
       // Timers
-      return timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index));
+      return timer_group_size(app_data_get_timer_group(app_data_get(), s_timer_group_index));
     case 1:
       // Settings
       return SETTINGS_NUM_ROWS;
@@ -168,8 +164,7 @@ static void menu_cell_draw_timer_row(GContext* ctx, const Layer* cell_layer, uin
   assert(cell_layer);
   assert(data);
 
-  struct App_data* app_data = data;
-  struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
+  struct Timer_group* timer_group = app_data_get_timer_group(app_data_get(), s_timer_group_index);
   assert(timer_group);
   struct Timer* timer = timer_group_get_timer(timer_group, row_index);
   assert(timer);
@@ -200,21 +195,21 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
+  struct App_data* app_data = app_data_get();
 
   switch (cell_index->section) {
     case 0:
       // Edit/create timer
-      timer_countdown_window_push(app_data, s_timer_group_index, cell_index->row);
+      timer_countdown_window_push(s_timer_group_index, cell_index->row);
       break;
     case 1:
       if (cell_index->row == 0) {
         // Edit/create timer
         timer_group_add_timer(app_data_get_timer_group(app_data, s_timer_group_index), timer_create(app_data_get_next_timer_id(app_data)));
-        timer_edit_window_push(app_data, s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
+        timer_edit_window_push(s_timer_group_index, timer_group_size(app_data_get_timer_group(app_data, s_timer_group_index)) - 1);
       } else if (cell_index->row == 1) {
         // Settings
-        settings_window_push(app_data, s_timer_group_index);
+        settings_window_push(s_timer_group_index);
       } else if (cell_index->row == 2) {
         // Delete group
         struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
@@ -237,12 +232,10 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 
 static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
-
   switch (cell_index->section) {
     case 0:
       // Edit timer
-      timer_edit_window_push(app_data, s_timer_group_index, cell_index->row);
+      timer_edit_window_push(s_timer_group_index, cell_index->row);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_DEBUG, "Only support long click on timers");

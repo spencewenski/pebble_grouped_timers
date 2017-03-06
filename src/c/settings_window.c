@@ -30,15 +30,13 @@ static enum Repeat_style get_next_repeat_style(enum Repeat_style repeat_style);
 static enum Progress_style get_next_progress_style(enum Progress_style progress_style);
 static enum Vibrate_style get_next_vibrate_style(enum Vibrate_style vibrate_style);
 
-void settings_window_push(struct App_data* app_data, int timer_group)
+void settings_window_push(int timer_group)
 {
   s_settings_window = window_create();
 
   assert(s_settings_window);
 
   s_timer_group_index = timer_group;
-
-  window_set_user_data(s_settings_window, app_data);
 
   window_set_window_handlers(s_settings_window, (WindowHandlers) {
     .load = window_load_handler,
@@ -63,9 +61,7 @@ static void window_load_handler(Window* window)
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
 
-  struct App_data* app_data = window_get_user_data(window);
-
-  menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
+  menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = PBL_IF_ROUND_ELSE(menu_cell_get_height_round, NULL),
@@ -103,8 +99,7 @@ static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t secti
 
 static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
-  struct Settings* settings = get_settings(app_data, s_timer_group_index);
+  struct Settings* settings = get_settings(app_data_get(), s_timer_group_index);
 
   enum Settings_field settings_field = get_settings_field(cell_index->row);
 
@@ -154,8 +149,7 @@ static enum Settings_field get_settings_field(int settings_field_index)
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
-  struct Settings* settings = get_settings(app_data, s_timer_group_index);
+  struct Settings* settings = get_settings(app_data_get(), s_timer_group_index);
   enum Settings_field settings_field = get_settings_field(cell_index->row);
 
   switch (settings_field) {

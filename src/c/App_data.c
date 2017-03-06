@@ -10,22 +10,46 @@
 
 #include <pebble.h>
 
+
 static struct App_data* app_data_create();
+static struct App_data* app_data_load();
+static void app_data_save(const struct App_data* app_data);
+static void app_data_destroy_intern(struct App_data* app_data);
 
 struct App_data {
   struct List* timer_groups; // List of Lists
   struct Settings* settings;
 };
+static struct App_data* s_app_data = NULL;
 
-static struct App_data* app_data_create()
+struct App_data* app_data_get()
 {
-	struct App_data* app_data = safe_alloc(sizeof(struct App_data));
-  app_data->timer_groups = list_create();
-  app_data->settings = settings_create();
-  return app_data;
+  if (s_app_data) {
+    return s_app_data;
+  }
+  s_app_data = app_data_load();
+  return s_app_data;
 }
 
-void app_data_destroy(struct App_data* app_data)
+void app_data_destroy() {
+  if (!s_app_data) {
+    return;
+  }
+  app_data_save(s_app_data);
+  app_data_destroy_intern(s_app_data);
+  s_app_data = NULL;
+}
+
+static void app_data_save(const struct App_data* app_data)
+{
+  assert(app_data);
+  persist_init_save();
+  list_save(app_data->timer_groups, (List_for_each_fp_t) timer_group_save);
+  settings_save(app_data->settings);
+  persist_finish_save();
+}
+
+static void app_data_destroy_intern(struct App_data* app_data)
 {
   assert(app_data);
   list_for_each(app_data->timer_groups, (List_for_each_fp_t)timer_group_destroy);
@@ -57,13 +81,12 @@ struct App_data* app_data_load()
   return app_data;
 }
 
-void app_data_save(const struct App_data* app_data)
+static struct App_data* app_data_create()
 {
-  assert(app_data);
-  persist_init_save();
-  list_save(app_data->timer_groups, (List_for_each_fp_t) timer_group_save);
-  settings_save(app_data->settings);
-  persist_finish_save();
+  struct App_data* app_data = safe_alloc(sizeof(struct App_data));
+  app_data->timer_groups = list_create();
+  app_data->settings = settings_create();
+  return app_data;
 }
 
 struct List* app_data_get_timer_groups(const struct App_data* app_data)

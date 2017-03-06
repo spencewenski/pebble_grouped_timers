@@ -16,3 +16,6 @@ release: opt
 
 $(PROG):
 	pebble build
+
+clean:
+	pebble clean

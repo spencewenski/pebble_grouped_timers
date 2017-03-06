@@ -1,15 +1,21 @@
 #ifndef APP_DATA_H
 #define APP_DATA_H
 
+/*
+Singleton that holds all the app data
+*/
+
 struct App_data;
 struct List;
 struct Timer;
 struct Timer_group;
 
-void app_data_destroy(struct App_data* app_data);
+// Get the app data
+struct App_data* app_data_get();
 
-struct App_data* app_data_load();
-void app_data_save(const struct App_data* app_data);
+// Destroy the app data
+// Should only be called when the app is exiting
+void app_data_destroy();
 
 struct List* app_data_get_timer_groups(const struct App_data* app_data);
 

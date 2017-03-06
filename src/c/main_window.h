@@ -3,6 +3,6 @@
 
 struct App_data;
 
-void main_window_push(struct App_data* app_data);
+void main_window_push();
 
 #endif /*MAIN_WINDOW_H*/

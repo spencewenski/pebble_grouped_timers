@@ -37,7 +37,7 @@ static void update_timer_text_layer(const struct Timer* timer);
 // Helpers
 static enum Timer_field get_timer_field(int timer_edit_index);
 
-void timer_edit_window_push(struct App_data* app_data, int timer_group_index, int timer_index)
+void timer_edit_window_push(int timer_group_index, int timer_index)
 {
   s_timer_edit_window = window_create();
 
@@ -46,7 +46,7 @@ void timer_edit_window_push(struct App_data* app_data, int timer_group_index, in
   s_timer_group_index = timer_group_index;
   s_timer_index = timer_index;
 
-  window_set_user_data(s_timer_edit_window, app_data);
+  window_set_user_data(s_timer_edit_window, app_data_get());
 
   window_set_window_handlers(s_timer_edit_window, (WindowHandlers) {
     .load = window_load_handler,
@@ -86,14 +86,13 @@ static void window_load_handler(Window* window)
   text_layer_set_font(s_timer_text_layer, fonts_get_system_font(FONT_KEY_LECO_32_BOLD_NUMBERS));
   layer_add_child(window_layer, text_layer_get_layer(s_timer_text_layer));
   // Set the timer text
-  struct App_data* app_data = window_get_user_data(window);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   update_timer_text_layer(timer);
 }
 
 static void window_unload_handler(Window* window)
 {
-  struct App_data* app_data = window_get_user_data(window);
+  struct App_data* app_data = app_data_get();
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   if (timer_get_length_seconds(timer) <= 0) {
     timer_group_remove_timer(app_data_get_timer_group(app_data, s_timer_group_index), s_timer_index);
@@ -122,8 +121,7 @@ static void click_config_provider(void* context)
 
 static void click_handler_up(ClickRecognizerRef recognizer, void* context)
 {
-  struct App_data* app_data = window_get_user_data(context);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_increment_field(timer, get_timer_field(s_edit_timer_field_num), 1);
   update_timer_text_layer(timer);
 }
@@ -138,8 +136,7 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
 
 static void click_handler_down(ClickRecognizerRef recognizer, void* context)
 {
-  struct App_data* app_data = window_get_user_data(context);
-  struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+  struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   timer_increment_field(timer, get_timer_field(s_edit_timer_field_num), -1);
   update_timer_text_layer(timer);
 }

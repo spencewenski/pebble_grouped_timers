@@ -39,13 +39,11 @@ static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* ce
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
 
-void main_window_push(struct App_data* app_data)
+void main_window_push()
 {
   s_main_window = window_create();
 
   assert(s_main_window);
-
-  window_set_user_data(s_main_window, app_data);
 
   window_set_window_handlers(s_main_window, (WindowHandlers) {
     .load = window_load_handler,
@@ -73,9 +71,7 @@ static void window_load_handler(Window* window)
   s_menu_layer = menu_layer_create(bounds);
   assert(s_menu_layer);
 
-  struct App_data* app_data = window_get_user_data(window);
-
-  menu_layer_set_callbacks(s_menu_layer, app_data, (MenuLayerCallbacks) {
+  menu_layer_set_callbacks(s_menu_layer, NULL, (MenuLayerCallbacks) {
     .get_num_sections = menu_get_num_sections_callback,
     .get_num_rows = menu_get_num_rows_callback,
     .get_cell_height = PBL_IF_ROUND_ELSE(menu_cell_get_height_round, NULL),
@@ -121,14 +117,11 @@ static uint16_t menu_get_num_sections_callback(MenuLayer* menu_layer, void* data
 static uint16_t menu_get_num_rows_callback(MenuLayer* menu_layer, uint16_t section_index, void* data)
 {
   assert(menu_layer);
-  assert(data);
-
-  struct App_data* app_data = data;
 
   switch (section_index) {
     case 0:
       // Timer groups
-      return list_size(app_data_get_timer_groups(app_data));
+      return list_size(app_data_get_timer_groups(app_data_get()));
     case 1:
       // Settings
       return SETTINGS_NUM_ROWS;
@@ -170,10 +163,8 @@ static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_laye
 {
   assert(ctx);
   assert(cell_layer);
-  assert(data);
 
-  struct App_data* app_data = data;
-  struct List* timer_groups = app_data_get_timer_groups(app_data);
+  struct List* timer_groups = app_data_get_timer_groups(app_data_get());
   assert(in_range(row_index, 0, list_size(timer_groups)));
 
   struct Timer_group* timer_group = list_get(timer_groups, row_index);
@@ -230,23 +221,21 @@ static void menu_draw_header_callback(GContext* ctx, const Layer* cell_layer, ui
 
 static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
-
   switch (cell_index->section) {
     case 0:
       // Timer group
-      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data))));
-      timer_group_window_push(app_data, cell_index->row);
+      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data_get()))));
+      timer_group_window_push(cell_index->row);
       break;
     case 1:
       if (cell_index->row == 0) {
         // New timer group
-        struct List* timer_groups = app_data_get_timer_groups(app_data);
+        struct List* timer_groups = app_data_get_timer_groups(app_data_get());
         list_add(timer_groups, timer_group_create());
-        timer_group_window_push(app_data, list_size(timer_groups) - 1);
+        timer_group_window_push(list_size(timer_groups) - 1);
       } else if (cell_index->row == 1) {
         // Settings
-        settings_window_push(app_data, INVALID_INDEX);
+        settings_window_push(INVALID_INDEX);
       }
       break;
     default:
@@ -260,17 +249,15 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
 
 static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* cell_index, void* data)
 {
-  struct App_data* app_data = data;
-
   switch (cell_index->section) {
     case 0:
       // Start first timer in group
-      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data))));
-      if (timer_group_size(app_data_get_timer_group(app_data, cell_index->row)) <= 0) {
+      assert(in_range(cell_index->row, 0, list_size(app_data_get_timer_groups(app_data_get()))));
+      if (timer_group_size(app_data_get_timer_group(app_data_get(), cell_index->row)) <= 0) {
         break;
       }
-      timer_start(app_data_get_timer(app_data, cell_index->row, 0));
-      timer_countdown_window_push(app_data, cell_index->row, 0);
+      timer_start(app_data_get_timer(app_data_get(), cell_index->row, 0));
+      timer_countdown_window_push(cell_index->row, 0);
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_DEBUG, "Only support long click on timer groups");
