@@ -6,6 +6,8 @@
 #include "Timer_group.h"
 #include "assert.h"
 #include "draw_utility.h"
+#include "Wakeup_manager.h"
+#include "wakeup_util.h"
 
 #include <pebble.h>
 
@@ -23,6 +25,7 @@ static char s_timer_text_buffer[TIMER_TEXT_LENGTH];
 // WindowHandlers
 static void window_load_handler(Window* window);
 static void window_unload_handler(Window* window);
+static void window_appear_handler(Window* window);
 
 // Click handlers
 static void click_config_provider(void* context);
@@ -50,6 +53,7 @@ void timer_edit_window_push(int timer_group_index, int timer_index)
 
   window_set_window_handlers(s_timer_edit_window, (WindowHandlers) {
     .load = window_load_handler,
+      .appear = window_appear_handler,
     .unload = window_unload_handler
   });
 
@@ -88,6 +92,11 @@ static void window_load_handler(Window* window)
   // Set the timer text
   struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
   update_timer_text_layer(timer);
+}
+
+static void window_appear_handler(Window* window)
+{
+  timer_cancel_wakeup(app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index));
 }
 
 static void window_unload_handler(Window* window)

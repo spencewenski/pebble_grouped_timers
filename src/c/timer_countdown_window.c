@@ -10,6 +10,7 @@
 #include "draw_utility.h"
 #include "Utility.h"
 #include "Wakeup_manager.h"
+#include "wakeup_util.h"
 
 #include <pebble.h>
 
@@ -47,7 +48,9 @@ static void timer_handler(void* data);
 static void vibrate_timer_handler(void* data);
 
 // Helpers
-static void update_current_timer(struct App_data* app_data);
+// Return true if the new timer should start after this is called,
+// false otherwise
+static bool update_current_timer(struct App_data* app_data);
 
 void timer_countdown_window_push_id(int timer_id)
 {
@@ -58,19 +61,17 @@ void timer_countdown_window_push_id(int timer_id)
 
 void timer_countdown_window_push(int timer_group_index, int timer_index)
 {
+  if (s_timer_countdown_window) {
+    return;
+  }
   s_timer_countdown_window = window_create();
-
-  assert(s_timer_countdown_window);
-
-  s_timer_group_index = timer_group_index;
-  s_timer_index = timer_index;
-
   window_set_window_handlers(s_timer_countdown_window, (WindowHandlers) {
     .load = window_load_handler,
     .appear = window_appear_handler,
     .unload = window_unload_handler
   });
-
+  s_timer_group_index = timer_group_index;
+  s_timer_index = timer_index;
   window_stack_push(s_timer_countdown_window, false);
 }
 
@@ -173,19 +174,20 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_update(timer);
   if (timer_is_elapsed(timer)) {
-    if (settings_get_progress_style(settings) == PROGRESS_STYLE_WAIT_FOR_USER) {
-      cancel_app_timers();
-      timer_reset(timer);
-      wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
-      update_current_timer(app_data);
-      timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
-      timer_start(timer);
-      wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
-      update_timer_length_text_layer(timer);
-      start_app_timer(0, timer_handler, app_data);
+    cancel_app_timers();
+    timer_reset(timer);
+    wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
+    if (!update_current_timer(app_data)) {
+      update_timer_countdown_text_layer(timer);
       return;
     }
+    timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+    timer_reset(timer);
+    timer_start(timer);
+    wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
     update_timer_countdown_text_layer(timer);
+    update_timer_length_text_layer(timer);
+    start_app_timer(0, timer_handler, app_data);
     return;
   }
   if (timer_is_running(timer)) {
@@ -195,6 +197,7 @@ static void click_handler_select(ClickRecognizerRef recognizer, void* context)
   } else {
     timer_start(timer);
     wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
+    update_timer_countdown_text_layer(timer);
     update_timer_length_text_layer(timer);
     start_app_timer(0, timer_handler, app_data);
   }
@@ -235,67 +238,83 @@ static void timer_handler(void* data)
   if (!timer_is_running(timer)) {
     return;
   }
-  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
-  if (timer_is_elapsed(timer)) {
-    vibrate_timer_handler(app_data);
-  }
-  if (timer_is_elapsed(timer) && settings_get_progress_style(settings) == PROGRESS_STYLE_AUTO) {
-    cancel_app_timers();
-    timer_reset(timer);
-    wakeup_manager_cancel(app_data_get_wakeup_manager(app_data_get()), timer);
-    update_current_timer(app_data);
-    timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
-    timer_start(timer);
-    wakeup_manager_schedule(app_data_get_wakeup_manager(app_data_get()), timer);
-    update_timer_length_text_layer(timer);
-    update_timer_countdown_text_layer(timer);
-  } else if (timer_is_elapsed(timer)) {
+  if (!timer_is_elapsed(timer)) {
+    start_app_timer(MS_PER_SECOND, timer_handler, app_data);
     return;
   }
-  start_app_timer(MS_PER_SECOND, timer_handler, app_data);
+  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
+  timer_cancel_wakeup(timer);
+  vibrate_timer_handler(app_data);
+  if (settings_get_progress_style(settings) == PROGRESS_STYLE_AUTO) {
+    cancel_app_timers();
+    struct Timer* previous_timer = timer;
+    if (!update_current_timer(app_data)) {
+      update_timer_countdown_text_layer(timer);
+      update_timer_length_text_layer(timer);
+      return;
+    }
+    timer_reset(previous_timer);
+    timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
+    timer_reset(timer);
+    timer_start(timer);
+    timer_schedule_wakeup(timer);
+    start_app_timer(MS_PER_SECOND, timer_handler, app_data);
+  }
+  update_timer_countdown_text_layer(timer);
+  update_timer_length_text_layer(timer);
 }
 
 static void vibrate_timer_handler(void* data)
 {
   s_app_timer_vibrate_handle = NULL;
-  vibes_double_pulse();
   struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
-  if (!timer_is_running(timer) || !timer_is_elapsed(timer)) {
+  if (!(timer_is_running(timer) && timer_is_elapsed(timer))) {
     return;
   }
+  vibes_double_pulse();
   s_app_timer_vibrate_handle = app_timer_register(NUDGE_INTERVAL_MS, vibrate_timer_handler, data);
+  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data_get(), s_timer_group_index));
+  if (settings_get_progress_style(settings) != PROGRESS_STYLE_AUTO) {
+    timer_cancel_wakeup(timer);
+    wakeup_manager_schedule_nudge(app_data_get_wakeup_manager(app_data_get()), timer);
+  }
 }
 
-static void update_current_timer(struct App_data* app_data)
+static bool update_current_timer(struct App_data* app_data)
 {
   struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
   if (timer_group_size(timer_group) <= 0) {
-    return;
+    return false;
   }
   struct Settings* settings = timer_group_get_settings(timer_group);
+  enum Progress_style progress_style = settings_get_progress_style(settings);
+  if (progress_style != PROGRESS_STYLE_AUTO && progress_style != PROGRESS_STYLE_WAIT_FOR_USER) {
+    // Can't progress; repeat the same timer and don't automatically start
+    return false;
+  }
   enum Repeat_style repeat_style = settings_get_repeat_style(settings);
   switch (repeat_style) {
     case REPEAT_STYLE_NONE:
       if (s_timer_index >= (timer_group_size(timer_group) - 1)) {
-        return;
+        return false;
       }
       ++s_timer_index;
-      return;
+      return true;
     case REPEAT_STYLE_SINGLE:
-      return;
+      return true;
     case REPEAT_STYLE_GROUP:
       if (s_timer_index >= (timer_group_size(timer_group) - 1)) {
         s_timer_index = 0;
-        return;
+        return true;
       }
       ++s_timer_index;
-      return;
+      return true;
     case REPEAT_STYLE_INVALID: // intentional fall through
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid repeat style: %d", repeat_style);
-      return;
+      return false;
   }
-
+  return false;
 }
 
 static void update_timer_countdown_text_layer(struct Timer* timer)

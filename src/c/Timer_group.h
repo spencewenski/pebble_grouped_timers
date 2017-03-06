@@ -26,6 +26,6 @@ struct Timer* timer_group_get_timer_by_id(const struct Timer_group* timer_group,
 // Return the index of the timer with the given ID. Return negative if no timer
 // has the given ID.
 int timer_group_get_timer_index(const struct Timer_group* timer_group, int timer_id);
-
+void timer_group_cancel_wakeups(const struct Timer_group* timer_group);
 
 #endif /*TIMER_GROUP_H*/

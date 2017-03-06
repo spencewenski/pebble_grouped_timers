@@ -4,6 +4,7 @@
 #include "Timer.h"
 #include "assert.h"
 #include "Settings.h"
+#include "wakeup_util.h"
 
 #include <pebble.h>
 
@@ -110,4 +111,10 @@ int timer_group_get_timer_index(const struct Timer_group* timer_group, int timer
     }
   }
   return -1;
+}
+
+void timer_group_cancel_wakeups(const struct Timer_group* timer_group)
+{
+  assert(timer_group);
+  list_for_each(timer_group->timers, (List_for_each_fp_t)timer_cancel_wakeup);
 }

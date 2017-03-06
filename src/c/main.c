@@ -18,8 +18,8 @@ int main()
 
 static void init()
 {
-  wakeup_manager_handle_wakeup(app_data_get_wakeup_manager(app_data_get()));
   main_window_push();
+  wakeup_manager_handle_wakeup(app_data_get_wakeup_manager(app_data_get()));
 }
 
 static void deinit()

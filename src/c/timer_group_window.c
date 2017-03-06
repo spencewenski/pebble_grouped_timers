@@ -213,6 +213,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       } else if (cell_index->row == 2) {
         // Delete group
         struct Timer_group* timer_group = app_data_get_timer_group(app_data, s_timer_group_index);
+        timer_group_cancel_wakeups(timer_group);
         list_remove(app_data_get_timer_groups(app_data), s_timer_group_index);
         timer_group_destroy(timer_group);
         timer_group = NULL;
