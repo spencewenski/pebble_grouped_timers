@@ -154,11 +154,6 @@ static void click_handler_back(ClickRecognizerRef recognizer, void* context)
 {
   --s_edit_timer_field_num;
   if (s_edit_timer_field_num < 0) {
-    struct Timer* timer = app_data_get_timer(app_data_get(), s_timer_group_index, s_timer_index);
-    // Set all the fields to zero so the timer is deleted when the window exits
-    timer_set_field(timer, TIMER_FIELD_HOURS, 0);
-    timer_set_field(timer, TIMER_FIELD_MINUTES, 0);
-    timer_set_field(timer, TIMER_FIELD_SECONDS, 0);
     window_stack_pop(false);
   }
 }

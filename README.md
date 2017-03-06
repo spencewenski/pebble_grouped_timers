@@ -75,8 +75,9 @@ term "SDK", you can also install the app using the SDK.
 
 ### How do I use the Timer Edit window?
 The Timer Edit window currently doesn't visually indicate which field is
-selected. Other than that, the Timer Edit window behaves exactly the same as the
-official Pebble timer app.
+selected. Other than that, the Timer Edit window behaves almost exactly the
+same as the official Pebble timer app. The only difference is that clicking the
+back button will commit the timer if the timer has a non-zero field.
 
 ### How do I get to the Timer Edit window?
 There are two ways:
