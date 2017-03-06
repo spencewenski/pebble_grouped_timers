@@ -14,8 +14,14 @@
 #include <pebble.h>
 
 #define MAIN_MENU_NUM_SECTIONS 2
-#define SETTINGS_NUM_ROWS 2
 #define SUBTITLE_TEXT_LENGTH 100
+
+#define SETTINGS_NUM_ROWS SETTINGS_NUM_ROWS_IMPL
+#ifdef NDEBUG
+#define SETTINGS_NUM_ROWS_IMPL 2
+#else
+#define SETTINGS_NUM_ROWS_IMPL 3
+#endif /* NDEBUG */
 
 static Window* s_main_window;
 static MenuLayer* s_menu_layer;
@@ -38,6 +44,9 @@ static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* ce
 // Helpers
 static void menu_cell_draw_timer_group_row(GContext* ctx, const Layer* cell_layer, uint16_t row_index, void* data);
 static void get_subtitle_text(char* buf, int buf_size, const struct Timer_group* timer_group);
+#ifndef NDEBUG
+static void create_test_data();
+#endif /* NDEBUG */
 
 void main_window_push()
 {
@@ -86,8 +95,6 @@ static void window_load_handler(Window* window)
 
   layer_add_child(window_layer, menu_layer_get_layer(s_menu_layer));
 }
-
-
 
 static void window_appear_handler(Window* window)
 {
@@ -153,6 +160,13 @@ static void menu_draw_row_callback(GContext* ctx, const Layer* cell_layer, MenuI
         menu_cell_basic_draw(ctx, cell_layer, "Settings", NULL, NULL);
         return;
       }
+#ifndef NDEBUG
+      if (cell_index->row == 2) {
+        // Create test data
+        menu_cell_basic_draw(ctx, cell_layer, "Create test data", NULL, NULL);
+        return;
+      }
+#endif /* NDEBUG */
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
       return;
@@ -237,6 +251,10 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
         // Settings
         settings_window_push(INVALID_INDEX);
       }
+#ifndef NDEBUG
+      else if (cell_index->row == 2) {
+      }
+#endif /* NDEBUG */
       break;
     default:
       APP_LOG(APP_LOG_LEVEL_ERROR, "Invalid section index: %d", cell_index->section);
@@ -268,3 +286,10 @@ static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* ce
   layer_mark_dirty(menu_layer_get_layer(s_menu_layer));
   menu_layer_reload_data(s_menu_layer);
 }
+
+#ifndef NDEBUG
+static void create_test_data()
+{
+
+}
+#endif /* NDEBUG */
