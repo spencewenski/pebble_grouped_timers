@@ -170,7 +170,6 @@ static void click_handler_up(ClickRecognizerRef recognizer, void* context)
 static void click_handler_select(ClickRecognizerRef recognizer, void* context)
 {
   struct App_data* app_data = app_data_get();
-  struct Settings* settings = timer_group_get_settings(app_data_get_timer_group(app_data, s_timer_group_index));
   struct Timer* timer = app_data_get_timer(app_data, s_timer_group_index, s_timer_index);
   timer_update(timer);
   if (timer_is_elapsed(timer)) {
