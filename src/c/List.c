@@ -111,6 +111,23 @@ void list_for_each(const struct List* list, List_for_each_fp_t func_ptr)
   }
 }
 
+void* list_find(const struct List* list, const void* data_ptr, List_compare_fp_t func_ptr)
+{
+  assert(list);
+  list_find_arg(list, data_ptr, func_ptr);
+}
+
+void* list_find_arg(const struct List* list, const void* arg_ptr, List_compare_arg_fp_t func_ptr)
+{
+  assert(list);
+  for (int i = 0; i < list->size; ++i) {
+    if (!func_ptr(arg_ptr, list->array[i])) {
+      return list->array[i];
+    }
+  }
+  return NULL;
+}
+
 struct List* list_load(List_load_item_fp_t func_ptr)
 {
   assert(persist_exists(g_current_persist_key));

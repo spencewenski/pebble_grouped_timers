@@ -50,15 +50,46 @@ Caller is responsible for deleting pointed-to data first.
 void list_remove(struct List* list, int index);
 
 /*
-Type of a function used by apply.
+Type of function used by apply.
 An apply function takes a data pointer as an argument, and returns void.
 */
 typedef void (*List_for_each_fp_t) (void* data);
 
-/* Apply the supplied function to the data pointer in each item of the
+/*
+Apply the supplied function to the data pointer in each item of the
 container.
 */
 void list_for_each(const struct List* list, List_for_each_fp_t func_ptr);
+
+/*
+Type of function that compares two data pointers. Returns 0 when data_ptr0 is
+equal to data_ptr1, negative when data_ptr0 is less than data_ptr1, and positive
+when data_ptr0 is greater than data_ptr1.
+*/
+typedef int (*List_compare_fp_t) (const void* data_ptr0, const void* data_ptr1);
+
+/*
+Find an item in the list for which func_ptr returns 0.
+func_ptr uses data_ptr as the first argument, and the list element as the second
+argument.
+*/
+void* list_find(const struct List* list, const void* data_ptr, List_compare_fp_t func_ptr);
+
+/*
+Type of function that compares the data pointed to by arg_ptr and data_ptr.
+The actual types pointed to by arg_ptr and data_ptr don't need to be the same,
+which allows you to compare two objects without creating an extra instance of
+the object. For example, arg_ptr could point to a datum with the same value
+as a member of the sought-for data object.
+*/
+typedef int (*List_compare_arg_fp_t) (const void* arg_ptr, const void* data_ptr);
+
+/*
+Find an item in the list for which func_ptr returns 0.
+func_ptr uses arg_ptr as the first argument, and the list element as the second
+argument.
+*/
+void* list_find_arg(const struct List* list, const void* arg_ptr, List_compare_arg_fp_t func_ptr);
 
 /*
 Type of function used to load items to be added to the list.
