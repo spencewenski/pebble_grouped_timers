@@ -10,6 +10,7 @@
 #include "Timer_group.h"
 #include "assert.h"
 #include "Timer.h"
+#include "Settings.h"
 
 #include <pebble.h>
 
@@ -253,6 +254,7 @@ static void menu_select_click_callback(MenuLayer* menu_layer, MenuIndex* cell_in
       }
 #ifndef NDEBUG
       else if (cell_index->row == 2) {
+        create_test_data();
       }
 #endif /* NDEBUG */
       break;
@@ -290,6 +292,71 @@ static void menu_select_long_click_callback(MenuLayer* menu_layer, MenuIndex* ce
 #ifndef NDEBUG
 static void create_test_data()
 {
+  struct App_data* app_data = app_data_get();
+  struct List* timer_groups = app_data_get_timer_groups(app_data);
 
+  // Timer group 1
+  struct Timer_group* timer_group = timer_group_create();
+  list_add(timer_groups, timer_group);
+
+  struct Timer* timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 45, 0);
+  timer_group_add_timer(timer_group, timer);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 15, 0);
+  timer_group_add_timer(timer_group, timer);
+
+  struct Settings* settings = timer_group_get_settings(timer_group);
+  settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
+  settings_set_progress_style(settings, PROGRESS_STYLE_WAIT_FOR_USER);
+  settings_set_vibrate_style(settings, VIBRATE_STYLE_NUDGE);
+
+  // Timer group 2
+  timer_group = timer_group_create();
+  list_add(timer_groups, timer_group);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 0, 5);
+  timer_group_add_timer(timer_group, timer);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 0, 10);
+  timer_group_add_timer(timer_group, timer);
+
+  settings = timer_group_get_settings(timer_group);
+  settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
+  settings_set_progress_style(settings, PROGRESS_STYLE_AUTO);
+  settings_set_vibrate_style(settings, VIBRATE_STYLE_NUDGE);
+
+  // Timer group 3
+  timer_group = timer_group_create();
+  list_add(timer_groups, timer_group);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 0, 20);
+  timer_group_add_timer(timer_group, timer);
+
+  settings = timer_group_get_settings(timer_group);
+  settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
+  settings_set_progress_style(settings, PROGRESS_STYLE_AUTO);
+  settings_set_vibrate_style(settings, VIBRATE_STYLE_NUDGE);
+
+  // Timer group 4
+  timer_group = timer_group_create();
+  list_add(timer_groups, timer_group);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 0, 5);
+  timer_group_add_timer(timer_group, timer);
+
+  timer = timer_create(app_data_get_next_timer_id(app_data));
+  timer_set_all(timer, 0, 1, 0);
+  timer_group_add_timer(timer_group, timer);
+
+  settings = timer_group_get_settings(timer_group);
+  settings_set_repeat_style(settings, REPEAT_STYLE_GROUP);
+  settings_set_progress_style(settings, PROGRESS_STYLE_AUTO);
+  settings_set_vibrate_style(settings, VIBRATE_STYLE_NUDGE);
 }
 #endif /* NDEBUG */

@@ -17,6 +17,8 @@ out = 'build'
 
 def options(ctx):
     ctx.load('pebble_sdk')
+    ctx.add_option('--release', action='store_true', default=False,
+        dest='release', help="Mark a build as a release build")
 
 def configure(ctx):
     ctx.load('pebble_sdk')
@@ -36,6 +38,9 @@ def build(ctx):
     for p in ctx.env.TARGET_PLATFORMS:
         ctx.set_env(ctx.all_envs[p])
         ctx.set_group(ctx.env.PLATFORM_NAME)
+        if ctx.options.release:
+            ctx.env.append_value('CFLAGS', ['-DNDEBUG'])
+            # ctx.env.append_unique('DEFINES', 'NDEBUG')
         app_elf = '{}/pebble-app.elf'.format(ctx.env.BUILD_DIR)
         ctx.pbl_program(source=ctx.path.ant_glob('src/c/**/*.c'), target=app_elf)
 

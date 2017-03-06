@@ -1,21 +1,21 @@
 # Makefile to make it easy to switch between release and debug targets
 
-CFLAGS :=
+OPTIONS :=
 PROG := prog
 
 all: $(PROG)
 
-debug: CFLAGS +=
+debug: OPTIONS +=
 debug: $(PROG)
 
-opt: CFLAGS +=
+opt: OPTIONS +=
 opt: $(PROG)
 
-release: CFLAGS += -D NDEBUG
+release: OPTIONS += --release
 release: opt
 
 $(PROG):
-	pebble build
+	pebble build options $(OPTIONS)
 
 clean:
 	pebble clean

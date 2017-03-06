@@ -18,9 +18,9 @@ static void app_data_save(const struct App_data* app_data);
 static void app_data_destroy_intern(struct App_data* app_data);
 
 struct App_data {
-  struct List* timer_groups; // List of Lists
   struct Settings* settings;
   struct Wakeup_manager* wakeup_manager;
+  struct List* timer_groups;
 };
 static struct App_data* s_app_data = NULL;
 
@@ -29,7 +29,9 @@ struct App_data* app_data_get()
   if (s_app_data) {
     return s_app_data;
   }
+  persist_init_load();
   s_app_data = app_data_load();
+  persist_finish_load();
   return s_app_data;
 }
 
@@ -46,28 +48,27 @@ static void app_data_save(const struct App_data* app_data)
 {
   assert(app_data);
   persist_init_save();
-  list_save(app_data->timer_groups, (List_for_each_fp_t) timer_group_save);
   settings_save(app_data->settings);
   wakeup_manager_save(app_data->wakeup_manager);
+  list_save(app_data->timer_groups, (List_for_each_fp_t) timer_group_save);
   persist_finish_save();
 }
 
 static void app_data_destroy_intern(struct App_data* app_data)
 {
   assert(app_data);
-  list_for_each(app_data->timer_groups, (List_for_each_fp_t)timer_group_destroy);
-  list_destroy(app_data->timer_groups);
-  app_data->timer_groups = NULL;
   settings_destroy(app_data->settings);
   app_data->settings = NULL;
   wakeup_manager_destroy(app_data->wakeup_manager);
   app_data->wakeup_manager = NULL;
+  list_for_each(app_data->timer_groups, (List_for_each_fp_t)timer_group_destroy);
+  list_destroy(app_data->timer_groups);
+  app_data->timer_groups = NULL;
   free(app_data);
 }
 
-struct App_data* app_data_load()
+static struct App_data* app_data_load()
 {
-  persist_init_load();
   if (!persist_exists(PERSIST_VERSION_KEY)) {
     APP_LOG(APP_LOG_LEVEL_INFO, "No data saved, creating new data with default values");
     persist_write_int(PERSIST_VERSION_KEY, PERSIST_VERSION);
@@ -80,19 +81,18 @@ struct App_data* app_data_load()
     return app_data_create();
   }
   struct App_data* app_data = safe_alloc(sizeof(struct App_data));
-  app_data->timer_groups = list_load((List_load_item_fp_t) timer_group_load);
   app_data->settings = settings_load();
   app_data->wakeup_manager = wakeup_manager_load();
-  persist_finish_load();
+  app_data->timer_groups = list_load((List_load_item_fp_t) timer_group_load);
   return app_data;
 }
 
 static struct App_data* app_data_create()
 {
   struct App_data* app_data = safe_alloc(sizeof(struct App_data));
-  app_data->timer_groups = list_create();
   app_data->settings = settings_create();
   app_data->wakeup_manager = wakeup_manager_create();
+  app_data->timer_groups = list_create();
   return app_data;
 }
 
