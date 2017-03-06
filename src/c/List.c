@@ -103,11 +103,11 @@ void list_remove(struct List* list, int index)
   list->array[--list->size] = NULL;
 }
 
-void list_remove(struct List* list, void* data_ptr)
+void list_remove_ptr(struct List* list, void* data_ptr)
 {
   assert(list);
-  assert(data_ptr >= list->array);
-  list_remove(list, data_ptr - list->array);
+  assert(data_ptr >= *(list->array));
+  list_remove(list, data_ptr - *(list->array));
 }
 
 void list_for_each(const struct List* list, List_for_each_fp_t func_ptr)
@@ -121,7 +121,7 @@ void list_for_each(const struct List* list, List_for_each_fp_t func_ptr)
 void* list_find(const struct List* list, const void* data_ptr, List_compare_fp_t func_ptr)
 {
   assert(list);
-  list_find_arg(list, data_ptr, func_ptr);
+  return list_find_arg(list, data_ptr, func_ptr);
 }
 
 void* list_find_arg(const struct List* list, const void* arg_ptr, List_compare_arg_fp_t func_ptr)
