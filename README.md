@@ -15,54 +15,9 @@ or features you want).
 
 
 ## Installation
-This app is not yet available on the app store, so the app must be installed
-manually.
-
-### CloudPebble
-If you don't already have the Pebble SDK setup, the easiest way to install this
-app is to import the GitHub project into
-[CloudPebble](https://cloudpebble.net/):
-
-1. Login to [CloudPebble](https://cloudpebble.net/).
-2. Click "Import".
-3. Select "Import from GitHub".
-4. Fill in the fields, using the following url for the GitHub project field:
-https://github.com/spencewenski/pebble_grouped_timers
-5. Click "Import"
-6. Open the compilation window by clicking the "Compilation" tab in the sidebar.
-7. Click "Run Build" to build the project.
-8. Select the "Phone" tab of the "Compilation" window.
-9. Turn on the developer connection in your phone's Pebble app.
-10. Click "Install and Run".
-
-### Pebble SDK
-If you already have the Pebble SDK installed, or you're not intimidated by the
-term "SDK", you can also install the app using the SDK.
-
-1. Install the SDK following the instructions [here](https://developer.pebble.com/sdk/).
-2. Clone this repo:
-
-    ```bash
-    git clone https://github.com/spencewenski/pebble_grouped_timers.git
-    ```
-
-3. Build the app
-
-    ```bash
-    # Default 'make' creates a debug build
-    make
-    # Or you can create a release build
-    make release
-    ```
-
-4. Install the app
-
-    ```bash
-    # Install on an emulator
-    pebble install --emulator emery
-    # Install on your watch
-    pebble install --phone 1.2.3.4
-    ```
+1. On your phone, go [here](https://spencewenski.keybase.pub/projects/pebble_grouped_timers/pebble_grouped_timers_alpha.pbw?dl=1)
+3. The app should automatically open in the Pebble app.
+4. Click "Ok" in the Pebble app to complete the installation.
 
 
 ## Navigating the incomplete UI
