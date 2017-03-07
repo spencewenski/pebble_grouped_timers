@@ -15,7 +15,7 @@ or features you want).
 
 
 ## Installation
-1. On your phone, go [here](https://spencewenski.keybase.pub/projects/pebble_grouped_timers/pebble_grouped_timers_alpha.pbw?dl=1)
+1. Download on your phone by clicking [here](https://spencewenski.keybase.pub/projects/pebble_grouped_timers/pebble_grouped_timers_alpha.pbw?dl=1).
 3. The app should automatically open in the Pebble app.
 4. Click "Ok" in the Pebble app to complete the installation.
 
