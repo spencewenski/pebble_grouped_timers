@@ -23,10 +23,9 @@ or features you want).
 ## Navigating the incomplete UI
 ### How do I create a timer?
 1. In the Main window, either:
-  a. select a timer group from the list, or
-  b. create a timer group by selecting the "New Group" option
-2. Select the "New Timer" option
-3. Edit the
+  a. Select a timer group from the list, or
+  b. Create a timer group by selecting the "New Group" option.
+2. Select the "New Timer" option.
 
 ### How do I use the Timer Edit window?
 The Timer Edit window currently doesn't visually indicate which field is
@@ -45,6 +44,17 @@ There are two ways:
 2. Set all the timer values to zero.
 3. Commit the timer by pressing back or select until the app returns to the
 Timer Group window.
+
+### What do the buttons on the Countdown window do?
+1. Up: Reset the current timer.
+2. Select: Start/pause the current timer.
+3. Down: Edit the timer (resets the timers and opens the Timer Edit window).
+
+### Are there any other hidden features?
+Yes!
+
+1. Long pressing Select on a timer group in the Main window automatically starts
+the first timer in the group.
 
 
 ## Features
