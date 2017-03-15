@@ -23,8 +23,8 @@ or features you want).
 ## Navigating the incomplete UI
 ### How do I create a timer?
 1. In the Main window, either:
-  a. Select a timer group from the list, or
-  b. Create a timer group by selecting the "New Group" option.
+    1. Select a timer group from the list, or
+    2. Create a timer group by selecting the "New Group" option.
 2. Select the "New Timer" option.
 
 ### How do I use the Timer Edit window?
@@ -34,10 +34,10 @@ same as the official Pebble timer app. The only difference is that clicking the
 back button will commit the timer if the timer has a non-zero field.
 
 ### How do I get to the Timer Edit window?
-There are two ways:
+There are a couple ways:
 
-1. Long press the select button when in the Timer Group window.
-2. Single press the down button when in the Timer Countdown window.
+- Long press the select button when in the Timer Group window.
+- Single press the down button when in the Timer Countdown window.
 
 ### How do I delete a timer?
 1. Get to the edit window using one of the methods described above.
@@ -46,14 +46,14 @@ There are two ways:
 Timer Group window.
 
 ### What do the buttons on the Countdown window do?
-1. Up: Reset the current timer.
-2. Select: Start/pause the current timer.
-3. Down: Edit the timer (resets the timers and opens the Timer Edit window).
+- Up: Reset the current timer.
+- Select: Start/pause the current timer.
+- Down: Edit the timer (resets the timers and opens the Timer Edit window).
 
 ### Are there any other hidden features?
 Yes!
 
-1. Long pressing Select on a timer group in the Main window automatically starts
+- Long pressing Select on a timer group in the Main window automatically starts
 the first timer in the group.
 
 
