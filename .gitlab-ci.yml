@@ -1,0 +1,50 @@
+# variables:
+
+# cache:
+#   paths:
+#     - pebble-dev
+
+before_script:
+  - mkdir pebble-dev && pushd pebble-dev
+  - curl https://s3.amazonaws.com/assets.getpebble.com/pebble-tool/pebble-sdk-4.5-linux64.tar.bz2
+  - tar -jxf pebble-sdk-4.5-linux64.tar.bz2
+  - echo 'export PATH=~/pebble-dev/pebble-sdk-4.5-linux64/bin:$PATH' >> ~/.bash_profile
+  - source ~/.bash_profile
+  - apt-get update -qq && apt-get install python-pip python2.7-dev
+  - pip install virtualenv
+  - pushd pebble-sdk-4.5-linux64
+  - virtualenv --no-site-packages .env
+  - source .env/bin/activate
+  - pip install -r requirements.txt
+  - deactivate
+  - popd && popd
+
+stages:
+  - build
+  - deploy
+
+debug_build:
+  stage: build
+  script:
+    - make debug
+  artifacts:
+    name: "$CI_BUILD_NAME"
+    when: on_success
+    paths:
+      - build/pebble_grouped_timers.pbw
+  environment:
+    name: debug
+
+release_build:
+  stage: build
+  only:
+    - tags
+  script:
+    - make debug
+  artifacts:
+    name: "$CI_BUILD_NAME"
+    when: on_success
+    paths:
+      - build/pebble_grouped_timers.pbw
+  environment:
+    name: release
