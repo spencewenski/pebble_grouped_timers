@@ -1,5 +1,9 @@
 Pebble grouped timers
 =====================
+
+THIS PROJECT WAS [MOVED TO GITLAB](https://gitlab.com/spencewenski/pebble_grouped_timers) TO TAKE ADVANTAGE OF THEIR PIPELINE SYSTEM.
+
+
 A timer app for Pebble that allows you to group timers into lists. Timer groups
 can be set to progress automatically, or wait for user input before starting the
 next timer. There is no limit on the number of timers you can create (except for
